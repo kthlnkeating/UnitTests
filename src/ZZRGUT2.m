@@ -5,6 +5,7 @@ ZZRGUT2 ;;
  Q
  ;
 STARTUP ;
+ TSTART
  S DUZ=1,DUZ(0)="@",IO="",U="^"
  S DT=$P($$HTFM^XLFDT($H),".")
  S ORIGINAL=^GMPL(125.99,1,0)
@@ -14,7 +15,7 @@ SETUP ;
  Q
  ;
 SHUTDOWN ;
- S ^GMPL(125.99,1,0)=ORIGINAL 
+ TROLLBACK
  Q
  ;
 LOCALCHK(INPUT) ;
