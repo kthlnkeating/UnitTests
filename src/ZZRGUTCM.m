@@ -64,3 +64,9 @@ ORARY(PROBS,ARY)
  .. S ARY(I)="GMPFLD(10,""NEW"","_FLDNO_")="""_PROBS(10,"NEW",FLDNO)_""""
  Q
  ;
+LOGON
+ S DUZ=$$CHECKAV^XUSRB("fakedoc1;1Doc!@#$")
+ D DUZ^XUS1A
+ S GMPVAMC=DUZ(2)
+ Q
+ ;
