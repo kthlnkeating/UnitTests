@@ -1,5 +1,5 @@
-ZZRGUT2 ;; 
- ;;;Problem List;;02/21/12
+ZZRGUT2 ;RGI/VSL - Unit Tests - Problem List ;4/24/12
+ ;;1.0;UNIT TEST;;Apr 25, 2012;Build 1;
  S IO=""
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZRGUT2")
  Q
@@ -60,7 +60,7 @@ TEST3 ; Test New list
  D CHKTF^XTMUNIT('ERR,"ERROR MESSAGE")
  Q
  ;
-XTENT 
+XTENT ;
  ;;TEST1;Value set 1
  ;;TEST2;Value set 2
  ;;TEST1;Value set 1 repeat
