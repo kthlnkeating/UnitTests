@@ -1,4 +1,4 @@
-ZZRGUSDC ;Unit Tests - Clinic API; 05/28/2012  11:46 AM
+ZZRGUSDC ;Unit Tests - Clinic API; 10/26/2012  11:46 AM
  ;;1.0;UNIT TEST;;05/28/2012;
 ADDCLN(NAME) ; Add new clinic
  N IEN
@@ -15,6 +15,20 @@ ADDCLN(NAME) ; Add new clinic
  S ^SC(IEN,"SDP")="5^2^3^"
  Q IEN
  ;
+ADDREQ(SD,DFN,SCODE) ;
+ N ERR,FDA,IENS
+ S ^GMR(123.5,"AB1",SCODE,4,1)=""
+ S IENS="+1,"
+ S FDA(123,IENS,.01)=+SD
+ S FDA(123,IENS,.02)=+DFN
+ S FDA(123,IENS,.04)=+SC
+ S FDA(123,IENS,.1)="TXT"
+ S FDA(123,IENS,1)=4
+ S FDA(123,IENS,8)=5
+ S FDA(123,IENS,10)=DUZ
+ S FDA(123,IENS,13)="C"
+ D UPDATE^DIE("","FDA","IENS","ERR")
+ Q $G(IENS(1))
 ADDPATT(SC) ;
  S DD=9999999
  F I=0:1:6 S ^SC(SC,"T"_I,DD,0)=DD,^SC(SC,"T"_I,DD,1)="[1 1 1 1|1 1 1 1|1 1 1 1|1 1 1 1|1 1 1 1|1 1 1 1|1 1 1 1|1 1 1 1]"
@@ -27,6 +41,7 @@ ADDPAT(NAME) ; Add new patient
  Q IEN
  ;
 SETUP(PNM,CNM) ;
+ S $P(^ORD(101,1380,0),"^",3)=""
  S:$D(PNM) PNAME=PNM
  S:$D(CNM) CNAME=CNM
  S:'$D(PNM) PNAME="Test,Patient"
