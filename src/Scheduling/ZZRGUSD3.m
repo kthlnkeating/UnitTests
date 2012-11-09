@@ -99,26 +99,6 @@ GETPAT ; Get a patient
  S %=$$GETPAT^SDMAPI3(.RETURN,DFN,1) ; Get a patient
  D CHKEQ^XTMUNIT($P(RETURN("NAME"),U,2),PNAME)
  Q
-DEMOG ;
- K RETURN
- S %=$$LSTETNS^SDMAPI3(.RETURN)
- D CHKEQ^XTMUNIT(RETURN,1,"Unexpected error: ")
- S ETN=$G(RETURN(1,"ID"))
- K RETURN
- S %=$$SETETN^SDMAPI3(.RETURN,DFN,ETN)
- D CHKEQ^XTMUNIT(^DPT(DFN,.06,1,0),ETN_U_ETN)
- K RETURN
- S %=$$LSTRACES^SDMAPI3(.RETURN)
- D CHKEQ^XTMUNIT(RETURN,1,"Unexpected error: ")
- S RAC=$G(RETURN(1,"ID"))
- K RETURN
- S %=$$SETRACE^SDMAPI3(.RETURN,DFN,RAC)
- D CHKEQ^XTMUNIT(^DPT(DFN,.06,1,0),ETN_U_ETN)
- K RETURN
- S %=$$GETPRES^SDMAPI3(.RETURN,DFN) ; Get a patient
- D CHKEQ^XTMUNIT(RETURN,1,"Unexpected error:")
- D CHKEQ^XTMUNIT(RETURN(1,"ID"),RAC,"Invalid patient race")
- Q
 CHKCO ;
  K RETURN
  S %=$$CHKCO^SDMAPI4(.RETURN,DFN,SD)
@@ -228,7 +208,6 @@ XTENT ;
  ;;CHKAPP;Check make apt
  ;;LSTPATS;Get patients
  ;;GETPAT;Get a patient
- ;;DEMOG;Patient details
  ;;CHKCO;Check in check out
  ;;LSTDAYAP;List all day active appointment
  ;;GETPAT2;Get patient
