@@ -1,4 +1,4 @@
-ZZRGUSDC ;Unit Tests - Clinic API; 10/26/2012  11:46 AM
+ZZRGUSDC ;Unit Tests - Clinic API; 1/16/2013
  ;;1.0;UNIT TEST;;05/28/2012;
 ADDCLN(NAME) ; Add new clinic
  N IEN
@@ -13,7 +13,7 @@ ADDCLN(NAME) ; Add new clinic
  S ^SC(IEN,"AT")="9"
  S ^SC(IEN,"SDPRIV",0)="^44.04PA^1^1"
  S ^SC(IEN,"SDP")="5^2^3^"
- Q IEN
+ Q IEN_U_NAME
  ;
 ADDREQ(SD,DFN,SCODE) ;
  N ERR,FDA,IENS
@@ -38,7 +38,7 @@ ADDPAT(NAME) ; Add new patient
  S IEN=$P(^DPT(0),U,3)+1
  S ^DPT("B",NAME,IEN)=""
  S ^DPT(IEN,0)=NAME_"^M^2800621^^^^^^221133445^^^^^^1^3120628^^^^1"
- Q IEN
+ Q IEN_U_NAME
  ;
 SETUP(PNM,CNM) ;
  S $P(^ORD(101,1380,0),"^",3)=""
@@ -48,14 +48,14 @@ SETUP(PNM,CNM) ;
  S:'$D(CNM) CNAME="Test Clinic"
  S SC=$$ADDCLN(CNAME)
  S DFN=$$ADDPAT(PNAME)
- D ADDPATT(SC)
- S SD=DT_".08"
- S RSN="Test Reason",LEN=30,TYPE=9,NXT="N"
+ D ADDPATT(+SC)
+ S SD=DT_".08",SD=SD_U_$$FMTE^XLFDT(SD)
+ S RSN="Test Reason",LEN="30^30",TYPE="9^REGULAR",NXT="N"
  Q
  ;
 SETENR(DFN,SC) ; Set patient enrolls
- S ^DPT(DFN,"DE","B",SC,1)=""
- S ^DPT(DFN,"DE",1,0)=SC_"^"
- S ^DPT(DFN,"DE",1,1,1,0)=DT_"^O^^^"
+ S ^DPT(+DFN,"DE","B",+SC,1)=""
+ S ^DPT(+DFN,"DE",1,0)=+SC_"^"
+ S ^DPT(+DFN,"DE",1,1,1,0)=DT_"^O^^^"
  Q
  ;
