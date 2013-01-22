@@ -1,4 +1,4 @@
-ZZRGUSD2 ;Unit Tests - Clinic API; 1/21/2013
+ZZRGUSD2 ;Unit Tests - Clinic API; 1/22/2013
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZRGUSD2")
@@ -202,6 +202,27 @@ DISCH ;
  D CHKEQ^XTMUNIT(^DPT(+DFN,"DE",1,0),+SC_"^I","Expected status: Inactive")
  D CHKEQ^XTMUNIT(^DPT(+DFN,"DE",1,1,1,0),DT_"^O^"_DT_U_RSN_U,"Expected status: Inactive")
  Q
+MAKECI ;
+ K ^DPT(+DFN,"S"),^SC(+SC,"S")
+ S ^XUSEC("SDOB",DUZ)="",^XUSEC("SDMOB",DUZ)=""
+ ;future appointment cannot be checked in
+ S SD0=$$NOW^XLFDT(),SD0=$E(SD0,1,12)+0.0001
+ S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SD0,TYPE,,LEN,NXT,RSN,"CI",,,,,CONS,1)
+ D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
+ D CHKEQ^XTMUNIT($G(RETURN("CI")),"","Future Appt cannot be checked in.")
+ ;appt checked in
+ S SDPAST=$E($$NOW^XLFDT(),1,10)
+ S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SDPAST,TYPE,,LEN,NXT,RSN,"CI",,,,,CONS,1)
+ D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
+ D CHKEQ^XTMUNIT($G(RETURN("CI")),SDPAST,"Incorrect check in date")
+ ;past appointment cannot be checked in
+ S SDPAST=$E($$FMADD^XLFDT($$NOW^XLFDT(),-1),1,10)
+ S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SDPAST,TYPE,,LEN,NXT,RSN,"CI",,,,,CONS,1)
+ D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
+ D CHKEQ^XTMUNIT($G(RETURN("CI")),"","Past Appt, cannot be checked in.")
+ K ^XUSEC("SDOB",DUZ),^XUSEC("SDMOB",DUZ)
+ Q
+ ;
 XTENT ;
  ;;MAKE;Make appointment
  ;;CHECKIN;Check in appointment
@@ -212,3 +233,4 @@ XTENT ;
  ;;PTFU;Determine follow-up apt
  ;;DELCO;Delete check out
  ;;DISCH;Discharge from clinic
+ ;;MAKECI;Make appt check-in

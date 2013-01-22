@@ -1,4 +1,4 @@
-ZZRGUSD3 ;Unit Tests - Clinic API; 1/21/2013
+ZZRGUSD3 ;Unit Tests - Clinic API; 1/22/2013
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZRGUSD3")
@@ -64,7 +64,7 @@ CHKAPP ;
  D CHKEQ^XTMUNIT($P(RETURN(0),U),"APTPPAB","Expected error: APTPPAB")
  D CHKEQ^XTMUNIT($P(RETURN(0),U,3),1,"Level 1 expected")
  ;check overbook
- S $P(^DPT(+DFN,0),U,3)=DT-100
+ S $P(^DPT(+DFN,0),U,3)=DT-100 K ^XUSEC("SDOB",DUZ)
  S %=$$CHKAPP^SDMAPI2(.RETURN,SC,DFN,SD,LEN)
  D CHKEQ^XTMUNIT(RETURN,0,"Expected error: APTNOST")
  D CHKEQ^XTMUNIT($P(RETURN(0),U),"APTNOST","Expected error: APTNOST")
@@ -98,6 +98,7 @@ CHKCO ;
  Q
 LSTDAYAP ;
  S SD=$P(DT,".")_".1",SD=SD_U_$$FMTE^XLFDT(SD)
+ S RTN="LSTDAYAP^SDMAPI4(.RETURN,PAT)" D EXSTPAT^ZZRGUSD2(RTN)
  S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SD,TYPE,,LEN,NXT,RSN)
  S %=$$LSTDAYAP^SDMAPI4(.RETURN,DFN)
  D CHKEQ^XTMUNIT(RETURN(+SD,"C","CIFN"),+SC,"Invalid clinic IFN")
@@ -197,6 +198,32 @@ CANAPP ;
  S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SD1,TYPE,,60,NXT,RSN,,,,,,CONS,1)
  D CHKEQ^XTMUNIT(RETURN,1,"Unexpected error: "_$G(RETURN(0)))
  Q
+MAKECO ;
+ K ^DPT(+DFN,"S"),^SC(+SC,"S")
+ S ^XUSEC("SDOB",DUZ)="",^XUSEC("SDMOB",DUZ)=""
+ ;future appointment cannot be checked out
+ K ^DPT(+DFN,"S"),^SC(+SC,"S")
+ S SD0=$$FMADD^XLFDT($$NOW^XLFDT(),,,1)
+ S CIO="CO",CIO("DT")=$$NOW^XLFDT()
+ S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SD0,TYPE,,LEN,NXT,RSN,.CIO,,,,,CONS,1)
+ D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
+ D CHKEQ^XTMUNIT($G(RETURN("COD")),"","Past Appt, cannot be checked out.")
+ ;appt checked out
+ K ^DPT(+DFN,"S"),^SC(+SC,"S")
+ S SD0=$E($$NOW^XLFDT(),1,10)
+ S CIO="CO",CIO("DT")=$$NOW^XLFDT()
+ S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SD0,TYPE,,LEN,NXT,RSN,.CIO,,,,,CONS,1)
+ D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
+ D CHKEQ^XTMUNIT($G(RETURN("COD")),$E(CIO("DT"),1,12),"Incorrect check out date")
+ ;appt checked out
+ K ^DPT(+DFN,"S"),^SC(+SC,"S")
+ S SD0=$E($$NOW^XLFDT(),1,10)
+ S CIO="CO" ;,CIO("DT")=$$NOW^XLFDT()
+ S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SD0,TYPE,,LEN,NXT,RSN,.CIO,,,,,CONS,1)
+ D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
+ D CHKEQ^XTMUNIT($G(RETURN("COD")),$E($$NOW^XLFDT(),1,12),"Incorrect check out date")
+ K ^XUSEC("SDOB",DUZ),^XUSEC("SDMOB",DUZ)
+ Q
 XTENT ;
  ;;CHKAPP;Check make apt
  ;;LSTPATS;Get patients
@@ -208,3 +235,4 @@ XTENT ;
  ;;CANDELCO;Can delete check out?
  ;;REQESTS;Consult request apt
  ;;CANAPP;Un cancel
+ ;;MAKECO;Make appt check-out
