@@ -1,4 +1,4 @@
-ZZRGUSD2 ;Unit Tests - Clinic API; 1/22/2013
+ZZRGUSD2 ;Unit Tests - Clinic API; 1/23/2013
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZRGUSD2")
@@ -121,22 +121,6 @@ CANCEL ;
  D CHKEQ^XTMUNIT(RETURN,1,"Unexpected error: "_$G(RETURN(0)))
  S $P(^SC(+SC,0),U,7)=TC
  Q
-MAKEUS ;
- N SDD
- S SDD=DT+1_".08",SDD=SDD_U_$$FMTE^XLFDT(SDD)
- S RTN="MAKEUS^SDMAPI2(.RETURN,PAT,CLN,SDD,TYPE)" D EXSTPAT(RTN),EXSTCLN(RTN)
- S %=$$MAKEUS^SDMAPI2(.RETURN,DFN,SC,SDD,TYPE)
- D CHKEQ^XTMUNIT(RETURN,1,"Unexpected error: ")
- S SC0=+DFN_"^"_+LEN_"^^^^"_DUZ_"^"_DT
- D CHKEQ^XTMUNIT(^SC(+SC,"S",+SDD,1,1,0),SC0,"Invalid clinic appointment - 0 node")
- S DPT0=+SC_"^^^^^^4^^^^^^^^^"_+TYPE_"^^"_DUZ_"^"_DT_"^^^^^0^W^0"
- D CHKEQ^XTMUNIT(^DPT(+DFN,"S",+SDD,0),DPT0,"Invalid patient appointment - 0 node")
- S ^SC(+SC,"I")=DT-1_U_DT+1,SDD=DT_".1",SDD=SDD_U_$$FMTE^XLFDT(SDD)
- S %=$$MAKEUS^SDMAPI2(.RETURN,DFN,SC,SDD,TYPE)
- D CHKEQ^XTMUNIT(RETURN,0,"Expected error: APTCINV")
- D CHKEQ^XTMUNIT($P(RETURN(0),U),"APTCINV","Expected error: APTCINV")
- K ^SC(+SC,"I")
- Q
 CHECKO ;
  K ^DPT(+DFN,"S"),^SC(+SC,"S")
  S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SD,TYPE,,LEN,NXT,RSN)
@@ -214,7 +198,7 @@ MAKECI ;
  S SDPAST=$E($$NOW^XLFDT(),1,10)
  S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SDPAST,TYPE,,LEN,NXT,RSN,"CI",,,,,CONS,1)
  D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
- D CHKEQ^XTMUNIT($G(RETURN("CI")),SDPAST,"Incorrect check in date")
+ D CHKEQ^XTMUNIT($G(RETURN("CI")),+SDPAST,"Incorrect check in date")
  ;past appointment cannot be checked in
  S SDPAST=$E($$FMADD^XLFDT($$NOW^XLFDT(),-1),1,10)
  S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SDPAST,TYPE,,LEN,NXT,RSN,"CI",,,,,CONS,1)
@@ -228,7 +212,6 @@ XTENT ;
  ;;CHECKIN;Check in appointment
  ;;NOSHOW;No show appointment
  ;;CANCEL;Cancel appointment
- ;;MAKEUS;Make unscheduled appointment
  ;;CHECKO;Check out appointment
  ;;PTFU;Determine follow-up apt
  ;;DELCO;Delete check out
