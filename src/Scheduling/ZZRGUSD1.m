@@ -1,4 +1,4 @@
-ZZRGUSD1 ;Unit Tests - Clinic API; 1/22/2013
+ZZRGUSD1 ;Unit Tests - Clinic API; 1/23/2013
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZRGUSD1")
@@ -71,7 +71,7 @@ GETCLN ;
  D CHKEQ^XTMUNIT(RETURN("PROHIBIT ACCESS TO CLINIC?"),"")
  D CHKEQ^XTMUNIT(RETURN("REACTIVATE DATE"),"")
  D CHKEQ^XTMUNIT(RETURN("SCHEDULE ON HOLIDAYS?"),"Y^YES")
- D CHKEQ^XTMUNIT(RETURN("VARIABLE APP'NTMENT LENGTH"),"")
+ D CHKEQ^XTMUNIT(RETURN("VARIABLE APP'NTMENT LENGTH"),"V^YES, VARIABLE LENGTH")
  ;
  S %=$$GETCLN^SDMAPI1(.RETURN,SC+1)
  D CHKEQ^XTMUNIT(RETURN,0,"Expected error: CLNNFND")
@@ -225,6 +225,16 @@ GETCSC ;
  S %=$$GETCSC^SDMAPI1(.RETURN,SC)
  D CHKEQ^XTMUNIT(RETURN,1)
  Q
+VARLEN ;
+ K ^DPT(+DFN,"S"),^SC(+SC,"S")
+ ;S ^XUSEC("SDOB",DUZ)="",^XUSEC("SDMOB",DUZ)=""
+ ;future appointment cannot be checked out
+ S SD0=$E($$NOW^XLFDT(),1,10),$P(^SC(+SC,"SL"),U,2)=""
+ S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SD0,TYPE,,+LEN+15,NXT,RSN,.CIO,,,,,,1)
+ D CHKEQ^XTMUNIT(RETURN,0,"Expected error: INVPARAM")
+ D CHKEQ^XTMUNIT($P($G(RETURN(0)),U),"INVPARAM","Unexpected error: "_$G(RETURN(0)))
+ S $P(^SC(+SC,"SL"),U,2)="V"
+ Q
 XTENT ;
  ;;CLNCK;Check clinic for valid stop code restriction.
  ;;GETCLN;Get Clinic data
@@ -244,3 +254,4 @@ XTENT ;
  ;;SCEXST;Get Stop Cod Exception status
  ;;LSTCRSNS;Get cancelation reasons.
  ;;GETCSC;Get clinic stop code
+ ;;VARLEN;Make appt var length

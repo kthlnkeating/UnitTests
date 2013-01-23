@@ -1,4 +1,4 @@
-ZZRGUSDC ;Unit Tests - Clinic API; 1/16/2013
+ZZRGUSDC ;Unit Tests - Clinic API; 1/23/2013
  ;;1.0;UNIT TEST;;05/28/2012;
 ADDCLN(NAME) ; Add new clinic
  N IEN
@@ -9,7 +9,7 @@ ADDCLN(NAME) ; Add new clinic
  S ^SC(IEN,0)=NAME_"^^C^^^^"_STOP
  S $P(^SC(IEN,0),U,18)=$O(^DIC(40.7,STOP))
  S $P(^SC(IEN,0),U,17)="Y"
- S ^SC(IEN,"SL")="30^^^^^4^1^Y"
+ S ^SC(IEN,"SL")="30^V^^^^4^1^Y"
  S ^SC(IEN,"AT")="9"
  S ^SC(IEN,"SDPRIV",0)="^44.04PA^1^1"
  S ^SC(IEN,"SDP")="5^2^3^"
