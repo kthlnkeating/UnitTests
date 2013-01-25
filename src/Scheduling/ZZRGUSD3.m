@@ -1,4 +1,4 @@
-ZZRGUSD3 ;Unit Tests - Clinic API; 1/22/2013
+ZZRGUSD3 ;Unit Tests - Clinic API; 1/25/2013
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZRGUSD3")
@@ -179,7 +179,7 @@ CANAPP ;
  S SD1=$P(DT,".")_".13",SD1=SD1_U_$$FMTE^XLFDT(SD1)
  ;reactivate cancelled appointment
  S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SD1,TYPE,,LEN,NXT,RSN)
- S %=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD1,"PC",RSN,"Cancellation test remarks")
+ S %=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD1,"PC",CRSN,"Cancellation test remarks")
  S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SD1,TYPE,,LEN,NXT,RSN,,,,,,,.LVL)
  D CHKEQ^XTMUNIT(RETURN,0,"Expected error: APTPPCP")
  D CHKEQ^XTMUNIT($P(RETURN(0),U),"APTPPCP","Expected error: APTPPCP")
