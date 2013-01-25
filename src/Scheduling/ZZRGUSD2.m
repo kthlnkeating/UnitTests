@@ -1,4 +1,4 @@
-ZZRGUSD2 ;Unit Tests - Clinic API; 1/23/2013
+ZZRGUSD2 ;Unit Tests - Clinic API; 1/25/2013
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZRGUSD2")
@@ -68,7 +68,7 @@ NOSHOW ;
  S DPT0=+SC_"^N^^^^^3^^^^^"_DUZ_"^^"_NOW_"^^"_+TYPE_"^^"_DUZ_"^"_DT_"^^^^^0^"_NXT_"^3"
  D CHKEQ^XTMUNIT(^DPT(+DFN,"S",+SD,0),DPT0,"Invalid patient appointment - 0 node")
  I $P(^DPT(+DFN,"S",+SD,0),U,2)="N" D
- . S NOW=$$NOW^XLFDT(),%=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD,"PC",RSN,"Cancellation test remarks")
+ . S NOW=$$NOW^XLFDT(),%=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD,"PC",CRSN,"Cancellation test remarks")
  . D CHKEQ^XTMUNIT(RETURN,0,"Expected error: APTCNPE")
  . D CHKEQ^XTMUNIT($P(RETURN(0),U),"APTCNPE","Expected error: APTCNPE")
  S $P(^GMR(123,CONS,0),U,12)=13
@@ -83,36 +83,53 @@ NOSHOW ;
  S RTN="NOSHOW^SDMAPI2(.RETURN,PAT,CLN,SD,1)" D EXSTPAT(RTN),EXSTCLN(RTN)
  Q
 CANCEL ;
- N RSN
- S RSN=6 K ^DPT(+DFN,"S"),^SC(+SC,"S")
+ K ^DPT(+DFN,"S"),^SC(+SC,"S")
  S SD=$P(DT,".")_".09",SD=SD_U_$$FMTE^XLFDT(SD)
  S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SD,TYPE,,LEN,NXT,RSN,,,,,,CONS)
+ ;Cancellation reason errors (INVPARAM)
+ S %=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD,"PC",,"Cancellation test remarks")
+ D CHKEQ^XTMUNIT(RETURN,0,"Expected error: INVPARAM")
+ D CHKEQ^XTMUNIT($P(RETURN(0),U),"INVPARAM","Expected error: INVPARAM")
+ ;Cancellation reason errors (RSNNFND)
+ S %=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD,"PC",$P(^SD(409.2,0),U,3)+1,"Cancellation test remarks")
+ D CHKEQ^XTMUNIT(RETURN,0,"Expected error: RSNNFND")
+ D CHKEQ^XTMUNIT($P(RETURN(0),U),"RSNNFND","Expected error: RSNNFND")
+ ;Cancelled by errors (INVPARAM)
+ S %=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD,,CRSN,"Cancellation test remarks")
+ D CHKEQ^XTMUNIT(RETURN,0,"Expected error: INVPARAM")
+ D CHKEQ^XTMUNIT($P(RETURN(0),U),"INVPARAM","Expected error: INVPARAM")
+ ;Cancelled by errors (INVPARAM)
+ S %=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD,"C",5,"Cancellation test remarks")
+ D CHKEQ^XTMUNIT(RETURN,0,"Expected error: INVPARAM")
+ D CHKEQ^XTMUNIT($P(RETURN(0),U),"INVPARAM","Expected error: INVPARAM")
+ ;
+ ;
  S %=$$GETAPCNS^SDCAPI1(.RETURN,DFN,SCODE)
  D CHKEQ^XTMUNIT(RETURN,1,"Unexpected error: "_$G(RETURN(0)))
  S $P(^DPT(+DFN,"S",+SD,0),U,2)="C"
  S RTN="CANCEL^SDMAPI2(.RETURN,PAT,CLN,SD,""PC"",RSN,)" D EXSTPAT(RTN),EXSTCLN(RTN)
  ; Already cancelled
- S %=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD,"PC",RSN,"Cancellation test remarks")
+ S %=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD,"PC",CRSN,"Cancellation test remarks")
  D CHKEQ^XTMUNIT(RETURN,0,"Expected error: APTCAND")
  D CHKEQ^XTMUNIT($P(RETURN(0),U),"APTCAND","Expected error: APTCAND")
  S $P(^DPT(+DFN,"S",+SD,0),U,2)=""
  ; Checked out
  S $P(^SC(+SC,"S",+SD,1,1,"C"),U,3)=+SD
- S %=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD,"PC",RSN,"Cancellation test remarks")
+ S %=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD,"PC",CRSN,"Cancellation test remarks")
  D CHKEQ^XTMUNIT(RETURN,0,"Expected error: APTCCHO")
  D CHKEQ^XTMUNIT($P(RETURN(0),U),"APTCCHO","Expected error: APTCCHO")
  S $P(^SC(+SC,"S",+SD,1,1,"C"),U,3)=""
  ; User rights
  S ^SC(+SC,"SDPROT")="Y"
- S %=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD,"PC",RSN,"Cancellation test remarks")
+ S %=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD,"PC",CRSN,"Cancellation test remarks")
  D CHKEQ^XTMUNIT(RETURN,0,"Expected error: APTCRGT")
  D CHKEQ^XTMUNIT($P(RETURN(0),U),"APTCRGT","Expected error: APTCRGT")
  K ^SC(+SC,"SDPROT")
  ;
- S NOW=$$NOW^XLFDT(),%=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD,"PC",RSN,"Cancellation test remarks")
- S SC0=+DFN_"^"_+LEN_"^^"_RSN_"^^"_DUZ_"^"_DT_"^^^"
+ S NOW=$$NOW^XLFDT(),%=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD,"PC",CRSN,"Cancellation test remarks")
+ S SC0=+DFN_"^"_+LEN_"^^"_+CRSN_"^^"_DUZ_"^"_DT_"^^^"
  D CHKEQ^XTMUNIT($G(^SC(+SC,"S",+SD,1,1)),"","Invalid clinic appointment - 0 node")
- S DPT0=+SC_"^PC^^^^^3^^^^^"_DUZ_"^^"_$E(NOW,1,12)_"^"_RSN_"^"_+TYPE_"^^"_DUZ_"^"_DT_"^^^^^0^"_NXT_"^3"
+ S DPT0=+SC_"^PC^^^^^3^^^^^"_DUZ_"^^"_$E(NOW,1,12)_"^"_+CRSN_"^"_+TYPE_"^^"_DUZ_"^"_DT_"^^^^^0^"_NXT_"^3"
  D CHKEQ^XTMUNIT(^DPT(+DFN,"S",+SD,0),DPT0,"Invalid patient appointment - 0 node")
  ;
  S $P(^GMR(123,CONS,0),U,12)=8
@@ -166,7 +183,7 @@ DISCH ;
  N RSN
  S RSN="Discharge reason"
  S SC1=$$ADDCLN^ZZRGUSDC("Disch Clinic"),SCT=SC,SC=SC1
- S RTN="GETPENRL^SDMAPI3(.RETURN,PAT,CLN)" D EXSTPAT(RTN),EXSTCLN(RTN)
+ S RTN="GETPENRL^SDMAPI3(.RETURN,PAT,CLN)" D EXSTPAT(RTN)
  S SC=SCT
  S %=$$GETPENRL^SDMAPI3(.ENS,DFN,SC1)
  D CHKEQ^XTMUNIT(ENS(+SC1,"NAME"),"Disch Clinic","Expected clinic: Disch Clinic")

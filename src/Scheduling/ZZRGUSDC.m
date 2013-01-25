@@ -1,4 +1,4 @@
-ZZRGUSDC ;Unit Tests - Clinic API; 1/23/2013
+ZZRGUSDC ;Unit Tests - Clinic API; 1/25/2013
  ;;1.0;UNIT TEST;;05/28/2012;
 ADDCLN(NAME) ; Add new clinic
  N IEN
@@ -51,6 +51,7 @@ SETUP(PNM,CNM) ;
  D ADDPATT(+SC)
  S SD=DT_".08",SD=SD_U_$$FMTE^XLFDT(SD)
  S RSN="Test Reason",LEN="30^30",TYPE="9^REGULAR",NXT="N"
+ S CRSN="11^OTHER"
  Q
  ;
 SETENR(DFN,SC) ; Set patient enrolls
