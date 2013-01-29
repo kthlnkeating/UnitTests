@@ -1,4 +1,4 @@
-ZZRGUSDC ;Unit Tests - Clinic API; 1/25/2013
+ZZRGUSDC ;Unit Tests - Clinic API; 1/29/2013
  ;;1.0;UNIT TEST;;05/28/2012;
 ADDCLN(NAME) ; Add new clinic
  N IEN
@@ -51,7 +51,7 @@ SETUP(PNM,CNM) ;
  D ADDPATT(+SC)
  S SD=DT_".08",SD=SD_U_$$FMTE^XLFDT(SD)
  S RSN="Test Reason",LEN="30^30",TYPE="9^REGULAR",NXT="N"
- S CRSN="11^OTHER"
+ S CRSN="11^OTHER",STYP="2^Sharing 2"
  Q
  ;
 SETENR(DFN,SC) ; Set patient enrolls
@@ -60,3 +60,16 @@ SETENR(DFN,SC) ; Set patient enrolls
  S ^DPT(+DFN,"DE",1,1,1,0)=DT_"^O^^^"
  Q
  ;
+SUBTYP ;
+ S ^DG(35.2,0)="SHARING AGREEMENT SUB-CATEGORY^35.2^2^2"
+ S ^DG(35.2,1,0)="Sharing 1"
+ S ^DG(35.2,2,0)="Sharing 2"
+ S ^DG(35.2,"B","Sharing 1",1)=""
+ S ^DG(35.2,"B","Sharing 2",2)=""
+ S ^DG(35.1,0)="SHARING AGREEMENT CATEGORY^35.1V^2^2"
+ S ^DG(35.1,1,0)="9;SD(409.1,^1^1"
+ S ^DG(35.1,2,0)="9;SD(409.1,^2^1"
+ S ^DG(35.1,"AT",9,1,1)=1
+ S ^DG(35.1,"AT",9,2,2)=1
+ S ^DG(35.1,"B","9;SD(409.1,",1)=""
+ S ^DG(35.1,"B","9;SD(409.1,",2)=""

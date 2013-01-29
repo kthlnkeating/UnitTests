@@ -1,4 +1,4 @@
-ZZRGUSD4 ;Unit Tests - Clinic API; 05/28/2012  11:46 AM
+ZZRGUSD4 ;Unit Tests - Clinic API; 05/29/2012  11:46 AM
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZRGUSD4")
@@ -83,7 +83,67 @@ MAKECI ;
  K ^XUSEC("SDOB",DUZ),^XUSEC("SDMOB",DUZ)
  Q
  ;
+CHKTYP ; Check appt type
+ K ^DPT(+DFN,"S"),^SC(+SC,"S")
+ ; Undefined type
+ S SD0=$$NOW^XLFDT(),SD0=$E(SD0,1,12)+0.0001
+ S %=$$MAKEUS^SDMAPI2(.RETURN,DFN,SC,SD0,,,)
+ D CHKEQ^XTMUNIT(RETURN,0,"Unxpected error: "_$G(RETURN(0)))
+ D CHKEQ^XTMUNIT(RETURN(0),"INVPARAM^Invalid parameter value - TYPE^1","Expected error: INVPARAM")
+ ; Undefined type
+ S SD0=$$NOW^XLFDT(),SD0=$E(SD0,1,12)+0.0001
+ S %=$$MAKEUS^SDMAPI2(.RETURN,DFN,SC,SD0,$P(^SD(409.1,0),U,3)+1,,)
+ D CHKEQ^XTMUNIT(RETURN,0,"Unxpected error: "_$G(RETURN(0)))
+ D CHKEQ^XTMUNIT(RETURN(0),"TYPNFND^Appointment type not found.^1","Expected error: TYPNFND")
+ ; Out of sync service conected
+ S SD0=$$NOW^XLFDT(),SD0=$E(SD0,1,12)+0.0001
+ S %=$$MAKEUS^SDMAPI2(.RETURN,DFN,SC,SD0,11,,)
+ D CHKEQ^XTMUNIT(RETURN,0,"Unxpected error: "_$G(RETURN(0)))
+ D CHKEQ^XTMUNIT(RETURN(0),"TYPINVSC^The 'SC Percent','Service Connected' and 'Primary Eligibility Codes' are OUT OF^1","Expected error: TYPINVSC")
+ ; Out of sync service conected
+ S SD0=$$NOW^XLFDT(),SD0=$E(SD0,1,12)+0.0001
+ S %=$$MAKEUS^SDMAPI2(.RETURN,DFN,SC,SD0,4,,)
+ D CHKEQ^XTMUNIT(RETURN,0,"Unxpected error: "_$G(RETURN(0)))
+ D CHKEQ^XTMUNIT(RETURN(0),"TYPINVD^Patient must have the eligibility code EMPLOYEE, COLLATERAL or SHARING AGREEMENT^1","Expected error: TYPINVD")
+ Q
+CHKSTYP ; Check appt subtype
+ D SUBTYP^ZZRGUSDC
+ ; Appointment subtype not found or inactive
+ S SD0=$$NOW^XLFDT(),SD0=$E(SD0,1,12)+0.0001
+ S %=$$MAKEUS^SDMAPI2(.RETURN,DFN,SC,SD0,9,3,)
+ D CHKEQ^XTMUNIT(RETURN,0,"Unxpected error: "_$G(RETURN(0)))
+ D CHKEQ^XTMUNIT(RETURN(0),"STYPNFND^Appointment subtype not found or inactive.^1","Expected error: STYPNFND")
+ ; Unscheduled appointment subtype
+ S SDD=DT_".08",SDD=SDD_U_$$FMTE^XLFDT(SDD)
+ S %=$$MAKEUS^SDMAPI2(.RETURN,DFN,SC,SDD,TYPE,STYP)
+ D CHKEQ^XTMUNIT(RETURN,1,"Unexpected error: ")
+ S SC0=+DFN_"^"_+LEN_"^^^^"_DUZ_"^"_DT
+ D CHKEQ^XTMUNIT(^SC(+SC,"S",+SDD,1,1,0),SC0,"Invalid clinic appointment - 0 node")
+ S DPT0=+SC_"^^^^^^4^^^^^^^^^"_+TYPE_"^^"_DUZ_"^"_DT_"^^^^^"_+STYP_"^W^0"
+ D CHKEQ^XTMUNIT(^DPT(+DFN,"S",+SDD,0),DPT0,"Invalid patient appointment - 0 node")
+ ; Appointment subtype
+ K ^SC(+SC,"ST",$P(SD,".")) S SDD=$P(SD,".",1)_".11"
+ S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SDD,TYPE,STYP,LEN,NXT,RSN,,,,,,,1)
+ D CHKEQ^XTMUNIT(RETURN,1,"Unexpected error: "_$G(RETURN(0)))
+ S SC0=+DFN_"^"_+LEN_"^^"_RSN_"^^"_DUZ_"^"_DT
+ D CHKEQ^XTMUNIT(^SC(+SC,"S",+SDD,1,1,0),SC0,"Invalid clinic appointment - 0 node")
+ S DPT0=+SC_"^^^^^^3^^^^^^^^^"_+TYPE_"^^"_DUZ_"^"_DT_"^^^^^"_+STYP_"^"_NXT_"^3"
+ D CHKEQ^XTMUNIT(^DPT(+DFN,"S",+SDD,0),DPT0,"Invalid patient appointment - 0 node")
+ Q
+LSTASTYP ;Check appt subtype
+ S %=$$LSTASTYP^SDMAPI5(.RETURN,,,,TYPE) ; List appointment subtypes
+ D CHKEQ^XTMUNIT(RETURN(0),"2^*^0^","Invalid 0 node")
+ D CHKEQ^XTMUNIT(RETURN(1,"ID"),1,"Invalid appt subtype ID")
+ D CHKEQ^XTMUNIT(RETURN(1,"NAME"),"Sharing 1","Invalid appt subtype NAME")
+ D CHKEQ^XTMUNIT(RETURN(1,"STATUS"),"YES","Invalid appt subtype NAME")
+ D CHKEQ^XTMUNIT(RETURN(2,"ID"),2,"Invalid appt subtype ID")
+ D CHKEQ^XTMUNIT(RETURN(2,"NAME"),"Sharing 2","Invalid appt subtype NAME")
+ D CHKEQ^XTMUNIT(RETURN(2,"STATUS"),"YES","Invalid appt subtype NAME")
+ Q
 XTENT ;
  ;;MAKEUS;Make unscheduled appointment
  ;;MAKECI;Make appt check-in
  ;;MAKECO;Make appt check-out
+ ;;CHKTYP;Check appt type
+ ;;CHKSTYP;Check appt subtype
+ ;;LSTASTYP;Check appt subtype
