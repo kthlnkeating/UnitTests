@@ -1,4 +1,4 @@
-ZZRGUSD2 ;Unit Tests - Clinic API; 1/25/2013
+ZZRGUSD2 ;Unit Tests - Clinic API; 2/15/2013
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZRGUSD2")
@@ -126,7 +126,7 @@ CANCEL ;
  D CHKEQ^XTMUNIT($P(RETURN(0),U),"APTCRGT","Expected error: APTCRGT")
  K ^SC(+SC,"SDPROT")
  ;
- S NOW=$$NOW^XLFDT(),%=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD,"PC",CRSN,"Cancellation test remarks")
+ S NOW=$$NOW^XLFDT(),%=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD,"PC",CRSN)
  S SC0=+DFN_"^"_+LEN_"^^"_+CRSN_"^^"_DUZ_"^"_DT_"^^^"
  D CHKEQ^XTMUNIT($G(^SC(+SC,"S",+SD,1,1)),"","Invalid clinic appointment - 0 node")
  S DPT0=+SC_"^PC^^^^^3^^^^^"_DUZ_"^^"_$E(NOW,1,12)_"^"_+CRSN_"^"_+TYPE_"^^"_DUZ_"^"_DT_"^^^^^0^"_NXT_"^3"
@@ -162,6 +162,7 @@ PTFU ;
  D CHKEQ^XTMUNIT(RETURN,1)
  Q
 DELCO ;
+ S ^XUSEC("SD SUPERVISOR",+DUZ)=""
  S RTN="DELCOSD^SDMAPI4(.RETURN,PAT,SD)" D EXSTPAT(RTN)
  S %=$$DELCOSD^SDMAPI4(.RETURN,DFN,SD),NOW=$$NOW^XLFDT()
  D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
