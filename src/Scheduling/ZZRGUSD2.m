@@ -1,4 +1,4 @@
-ZZRGUSD2 ;Unit Tests - Clinic API; 2/15/2013
+ZZRGUSD2 ;Unit Tests - Clinic API; 2/20/2013
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZRGUSD2")
@@ -87,7 +87,7 @@ CANCEL ;
  S SD=$P(DT,".")_".09",SD=SD_U_$$FMTE^XLFDT(SD)
  S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SD,TYPE,,LEN,NXT,RSN,,,,,,CONS)
  ;Cancellation reason errors (INVPARAM)
- S %=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD,"PC",,"Cancellation test remarks")
+ S %=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD,"PC",,)
  D CHKEQ^XTMUNIT(RETURN,0,"Expected error: INVPARAM")
  D CHKEQ^XTMUNIT($P(RETURN(0),U),"INVPARAM","Expected error: INVPARAM")
  ;Cancellation reason errors (RSNNFND)

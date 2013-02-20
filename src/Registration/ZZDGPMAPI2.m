@@ -1,4 +1,4 @@
-ZZDGPMAPI2 ;Unit Tests - Clinic API; 2/11/2013
+ZZDGPMAPI2 ;Unit Tests - Clinic API; 2/20/2013
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI2")
@@ -20,7 +20,7 @@ TRANSF ;
  ;Invalid patient
  S ADM("PATIENT")=+DFN,ADM("TYPE")=1,ADM("ADMREG")=1,ADM("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-3)_U
  S ADM("FDEXC")=1,ADM("SHDIAG")="Transfer Admit diagnosis",ADM("WARD")=WARD1,ADM("FTSPEC")="1^"
- S ADM("ATNDPHY")=DUZ
+ S ADM("ATNDPHY")=DUZ_U ;,ADM("ROOMBED")=BED1_U
  S %=$$ADMIT^DGPMAPI1(.RT,.ADM)
  S AFN=+RT
  S RTN="S %=$$TRANSF^DGPMAPI2(.RE,.PAR)"
@@ -85,7 +85,7 @@ UPDTRA ;
  D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM DATE")
  D CHKEQ^XTMUNIT($P(RE(0),U),"TRANBADM","Expected error: TRANBADM")
  ;Invalid admission type
- S PAR("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-2)_U
+ S PAR("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-1)_U
  S PAR("TYPE")="1^" ;Direct admission
  D CHKTYPE^ZZDGPMAPI1(RTN,.PAR,1)
  S PAR("TYPE")="11^"
@@ -105,11 +105,11 @@ UPDTRA ;
  D CHKEQ^XTMUNIT($P(^DGPM(+TFN,0),U,4),+PAR("TYPE"),"Unexpected error: "_$G(RE(0)))
  D CHKEQ^XTMUNIT($P(^DGPM(+TFN,0),U,6),+PAR("WARD"),"Unexpected error: "_$G(RE(0)))
  ;Invalid date
- S PARD("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-1)_U,PARD("TYPE")=24,PARD("ADMIFN")=AFN
+ S PARD("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),,-1)_U,PARD("TYPE")=24,PARD("ADMIFN")=AFN
  S %=$$DISCH^DGPMAPI3(.RR,.PARD),DSFN=RR
  S PAR("DATE")=$$NOW^XLFDT() X RTN
  D CHKEQ^XTMUNIT(RE,0,"Unexpected error: "_$G(RE(0)))
- D CHKEQ^XTMUNIT($P(RE(0),U),"TRANADIS","Expected error: TRANADIS")
+ D CHKEQ^XTMUNIT($P($G(RE(0)),U),"TRANADIS","Expected error: TRANADIS")
  S %=$$DELTRA^DGPMAPI2(.RE,TFN)
  S %=$$DELDSCH^DGPMAPI3(.RR,DSFN)
  Q
@@ -155,16 +155,16 @@ TOASIH ;
  ;discharge while asih
  S %=$$GETLASTM^DGPMAPI8(.LMVT,DFN)
  S PAR("DATE")=+PAR("DATE")+0.02,PAR("TYPE")=24,PAR("ADMIFN")=LMVT("ADMIFN")
- ;S %=$$DISCH^DGPMAPI3(.RE,.PAR),DISCH=+RE
+ S %=$$DISCH^DGPMAPI3(.RE,.PAR),DISCH=+RE
  ;Must delete discharge first
  S %=$$GETLASTM^DGPMAPI8(.LMVT,DFN)
  S %=$$DELADM^DGPMAPI1(.RE,LMVT("ADMIFN"))
- D CHKEQ^XTMUNIT(RE,1,"Expected error: CANMDDF")
- ;D CHKEQ^XTMUNIT($P(RE(0),U),"CANMDDF","Expected error: CANMDDF")
+ D CHKEQ^XTMUNIT(RE,0,"Expected error: CANMDDF")
+ D CHKEQ^XTMUNIT($P(RE(0),U),"CANMDDF","Expected error: CANMDDF")
  ;delete discharge
- ;S %=$$DELDSCH^DGPMAPI3(.RE,DISCH)
- ;D CHKEQ^XTMUNIT(RE,0,"Expected error: TRAINVAT")
- ;D CHKEQ^XTMUNIT($P(RE(0),U),"TRAINVAT","Expected error: TRAINVAT")
+ S %=$$DELDSCH^DGPMAPI3(.RE,DISCH)
+ D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
+ S %=$$DELADM^DGPMAPI1(.RE,LMVT("ADMIFN"))
  Q
 TOASIHO ;
  K PAR,RE
@@ -179,6 +179,11 @@ TOASIHO ;
  ;To ASIH Other facility
  X RTN S ASHO=+RE
  D CHKEQ^XTMUNIT(+RE>0,1,"Unexpected error: "_$G(RE(0)))
+ ;delete discharge
+ S %=$$GETLASTM^DGPMAPI8(.LMVT,DFN)
+ S %=$$DELDSCH^DGPMAPI3(.RE,LMVT("DISIFN"))
+ D CHKEQ^XTMUNIT(RE,0,"Expected error: DCHCDWAH")
+ D CHKEQ^XTMUNIT($P(RE(0),U),"DCHCDWAH","Expected error: DCHCDWAH")
  ;TO NHCU/DOM FROM ASIH
  S PAR("TYPE")=12,PAR("DATE")=+PAR("DATE")+0.00001 X RTN
  D CHKEQ^XTMUNIT(+RE>0,1,"Unexpected error: "_$G(RE(0)))
@@ -188,11 +193,6 @@ TOASIHO ;
  ;delete ASIH Other facility
  S %=$$DELTRA^DGPMAPI2(.RR,ASHO)
  D CHKEQ^XTMUNIT(RR,1,"Unexpected error: "_$G(RE(0)))
- Q
-DELTRA ;
- S TR("TYPE")=13
- S %=$$DELTRA^DGPMAPI2(.RE,TFN)
- D CHKEQ^XTMUNIT(RE,0,"Unexpected error: "_$G(RE(0)))
  Q
 CHKFCTY(RTN,PAR,UPD,REQ) ;
  ;Invalid transfer facility
@@ -214,11 +214,27 @@ CHKFCTY(RTN,PAR,UPD,REQ) ;
  Q
 TOABS ;
  K PAR,RE
- S PAR("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-1)_U,PAR("ADMIFN")=AFN,PAR("TYPE")=18
- S RTN="S %=$$TRANSF^DGPMAPI2(.RE,.PAR)" X RTN
- D CHKEQ^XTMUNIT(RE,1,"Expected error: INVPARM")
+ S PAR("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-1)_U,PAR("ADMIFN")=AFN,PAR("TYPE")=16
+ S RTN="S %=$$TRANSF^DGPMAPI2(.RE,.PAR)" X RTN S TFN1=+RE
+ D CHKEQ^XTMUNIT(+RE>0,1,"Expected error: INVPARM")
+ ;invalid transfer type
+ S PAR("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-1,1)_U,PAR("TYPE")=18 X RTN
+ D CHKEQ^XTMUNIT(RE,0,"Expected error: TRAINVAT")
+ D CHKEQ^XTMUNIT($P(RE(0),U),"TRAINVAT","Expected error: TRAINVAT")
+ ;from absence
+ S PAR("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-1,1)_U,PAR("TYPE")=14 X RTN S TFN2=+RE
+ D CHKEQ^XTMUNIT(RE>0,1,"Unexpected error: "_$G(RE(0)))
+ ;cleaning up
+ ;invalid transfer pair
+ S %=$$DELTRA^DGPMAPI2(.RE,TFN1)
+ D CHKEQ^XTMUNIT(RE,0,"Expected error: DELTITP")
+ D CHKEQ^XTMUNIT($P(RE(0),U),"DELTITP","Expected error: DELTITP")
+ S %=$$DELTRA^DGPMAPI2(.RE,TFN2)
+ D CHKEQ^XTMUNIT(RE>0,1,"Unexpected error: "_$G(RE(0)))
+ S %=$$DELTRA^DGPMAPI2(.RE,TFN1)
+ D CHKEQ^XTMUNIT(RE>0,1,"Unexpected error: "_$G(RE(0)))
+ Q
  ;
- ;;DELTRA;Delete transfer.
 XTENT ;
  ;;TRANSF;Transfer patient.
  ;;UPDTRA;Update transfer.

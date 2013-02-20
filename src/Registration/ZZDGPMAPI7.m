@@ -1,4 +1,4 @@
-ZZDGPMAPI7 ;Unit Tests - Clinic API; 2/11/2013
+ZZDGPMAPI7 ;Unit Tests - Clinic API; 2/20/2013
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI7")
@@ -104,7 +104,7 @@ LSTTPATS ;
 LSTPADMS ;
  S %=$$LSTPADMS^DGPMAPI7(.RE,DFN) S IFN=+DFN
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
- D CHKEQ^XTMUNIT(+RE(1,"BED"),+BED1,"Incorrect bed")
+ D CHKEQ^XTMUNIT(+RE(1,"ROOMBED"),+BED1,"Incorrect bed")
  D CHKEQ^XTMUNIT(+RE(1,"DATE"),+DATE1,"Incorrect date")
  D CHKEQ^XTMUNIT(+RE(1,"ID"),+AFN,"Incorrect IFN")
  D CHKEQ^XTMUNIT(+RE(1,"MASTYPE"),+15,"Incorrect mastype")
@@ -115,9 +115,18 @@ LSTPADMS ;
 LSTPTRAN ;
  S PAR("ADMIFN")=AFN,PAR("DATE")=$$FMADD^XLFDT(PAR("DATE"),1),PAR("TYPE")=11
  S %=$$TRANSF^DGPMAPI2(.RE,.PAR) S TFN=+RE
+ ;invalid admission
  S %=$$LSTPTRAN^DGPMAPI7(.RE,DFN) S IFN=+DFN
+ D CHKEQ^XTMUNIT(RE,0,"Expected error: ADMNFND")
+ D CHKEQ^XTMUNIT($P(RE(0),U),"ADMNFND","Expected error: ADMNFND")
+ ;invalid patient
+ S %=$$LSTPTRAN^DGPMAPI7(.RE,,AFN) S IFN=+DFN
+ D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM")
+ D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM")
+ ;
+ S %=$$LSTPTRAN^DGPMAPI7(.RE,DFN,AFN) S IFN=+DFN
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
- D CHKEQ^XTMUNIT(+RE(1,"BED"),+BED1,"Incorrect bed")
+ D CHKEQ^XTMUNIT(+RE(1,"ROOMBED"),+BED1,"Incorrect bed")
  D CHKEQ^XTMUNIT(+RE(1,"DATE"),+PAR("DATE"),"Incorrect date")
  D CHKEQ^XTMUNIT(+RE(1,"ID"),+TFN,"Incorrect IFN")
  D CHKEQ^XTMUNIT(+RE(1,"MASTYPE"),+4,"Incorrect mastype")
@@ -125,19 +134,9 @@ LSTPTRAN ;
  D CHKEQ^XTMUNIT(+RE(1,"TYPE"),PAR("TYPE"),"Incorrect type")
  D CHKEQ^XTMUNIT(+RE(1,"WARD"),+WARD1,"Incorrect ward")
  Q
-LSTPDSCH ;
+GETPAT ;
  S PAR("ADMIFN")=AFN,PAR("DATE")=$$FMADD^XLFDT(PAR("DATE"),2),PAR("TYPE")=24
  S %=$$DISCH^DGPMAPI3(.RE,.PAR) S DMFN=+RE,DMDATE=PAR("DATE")
- S %=$$LSTPDSCH^DGPMAPI7(.RE,DFN) S IFN=+DFN
- D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
- D CHKEQ^XTMUNIT(+RE(1,"ADMISS"),+AFN,"Incorrect bed")
- D CHKEQ^XTMUNIT(+RE(1,"DATE"),+PAR("DATE"),"Incorrect date")
- D CHKEQ^XTMUNIT(+RE(1,"ID"),+DMFN,"Incorrect IFN")
- D CHKEQ^XTMUNIT(+RE(1,"MASTYPE"),+16,"Incorrect mastype")
- D CHKEQ^XTMUNIT(+RE(1,"PATIENT"),+DFN,"Incorrect patient")
- D CHKEQ^XTMUNIT(+RE(1,"TYPE"),PAR("TYPE"),"Incorrect type")
- Q
-GETPAT ;
  S %=$$GETPAT^DGPMAPI8(.RE,DFN)
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
  D CHKEQ^XTMUNIT($P(RE("NAME"),U),$P(^DPT(IFN,0),U),"Incorrect name")
@@ -189,7 +188,6 @@ XTENT ;
  ;;LSTTPATS;List transferable patients
  ;;LSTPADMS;List patient admissions
  ;;LSTPTRAN;List patient transfers
- ;;LSTPDSCH;List patient discharges
  ;;GETPAT;;Get patient
  ;;GETMVT;;Get movement
  ;;GETMVTT;;Get movement type
