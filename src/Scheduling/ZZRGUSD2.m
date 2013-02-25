@@ -42,21 +42,21 @@ CHECKIN ;
  Q
 EXSTPAT(RTN) ;
  ;Invalid patient param
- S PAT=0,CLN=SC D @RTN
+ S PAT=0,CLN=SC,RTN="%=$$"_RTN S @RTN
  D CHKEQ^XTMUNIT(RETURN,0,"Expected error: INVPARAM")
  D CHKEQ^XTMUNIT($P(RETURN(0),U),"INVPARAM","Expected error: INVPARAM")
  ;patient does not exist
- S PAT=DFN+1,CLN=SC D @RTN
+ S PAT=DFN+1,CLN=SC S @RTN
  D CHKEQ^XTMUNIT(RETURN,0,"Expected error: PATNFND")
  D CHKEQ^XTMUNIT($P(RETURN(0),U),"PATNFND","Expected error: PATNFND")
  Q
 EXSTCLN(RTN) ;
  ;Invalid clinic param
- S CLN=0,PAT=DFN D @RTN
+ S CLN=0,PAT=DFN,RTN="%=$$"_RTN S @RTN
  D CHKEQ^XTMUNIT(RETURN,0,"Expected error: INVPARAM")
  D CHKEQ^XTMUNIT($P(RETURN(0),U),"INVPARAM","Expected error: INVPARAM")
  ;clinic does not exist
- S CLN=SC+1,PAT=DFN D @RTN
+ S CLN=SC+1,PAT=DFN S @RTN
  D CHKEQ^XTMUNIT(RETURN,0,"Expected error: CLNNFND")
  D CHKEQ^XTMUNIT($P(RETURN(0),U),"CLNNFND","Expected error: CLNNFND")
  Q
