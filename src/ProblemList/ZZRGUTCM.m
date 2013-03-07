@@ -1,4 +1,4 @@
-ZZRGUTCM ;RGI/CBR - Unit Tests - Common functions ;4/24/12
+ZZRGUTCM ;RGI/CBR - Unit Tests - Common functions ;3/7/2013
  ;;1.0;UNIT TEST;;Apr 25, 2012;Build 1;
 NEWPAT ;
  N PAT,PATU,PATDFN,ERR
@@ -54,6 +54,32 @@ CHKPRB(IFN,FIELDS,CONDT) ;
  . Q:FLDNO=10
  . D CHKEQ^XTMUNIT($P(FIELDS(FLDNO),U),$P(DBFLDS(FLDNO),U),"Invalid value in field: "_FLDNO)
  I $D(CONDT) D CHKEQ^XTMUNIT(CONDT,$P(DBFLDS(1.02),U))
+ Q
+ ;
+CHKEDLD(RET) ;
+ N ORG1,ORG2,FLD,I,IVAL,EVAL,ST
+ D NISTPRBS(.ORG1,.ORG2)
+ S I=""
+ F  S I=$O(RET(I)) Q:I=""  D
+ . S ST=$P(RET(I),$C(254))
+ . S FLD=$P(RET(I),$C(254),2)
+ . S IVAL=$P($P(RET(I),$C(254),3),U)
+ . S EVAL=$P($P(RET(I),$C(254),3),U,2)
+ . I "^.01^.02^.12^.13^1.02^1.08^1.14^1.1^"[("^"_FLD_"^") D CHKEQ^XTMUNIT($P($G(ORG1(FLD)),U),IVAL,"EDLOAD^ORQQPL1: Field "_FLD_" ("_ST_")")
+ . I "^.05^"[("^"_FLD_"^") D CHKEQ^XTMUNIT($P($G(ORG1(FLD)),U,2),EVAL,"EDLOAD^ORQQPL1: Field "_FLD_" ("_ST_")")
+ Q
+ ;
+SETARY(ARRIN,ARROUT) ;
+ N I,ST,FLD,IVAL,EVAL
+ K ARROUT
+ S I=""
+ F  S I=$O(RET(I)) Q:I=""  D
+ . S ST=$P(RET(I),$C(254))
+ . S FLD=$P(RET(I),$C(254),2)
+ . S IVAL=$P($P(RET(I),$C(254),3),U)
+ . S EVAL=$P($P(RET(I),$C(254),3),U,2)
+ . I ST="NEW" S ARROUT(I)="GMPFLD("_FLD_")="""_IVAL_U_EVAL_""""
+ . I ST="ORG" S ARROUT(I)="GMPORIG("_FLD_")="""_IVAL_U_EVAL_""""
  Q
  ;
 ORARY(PROBS,ARY) ;
