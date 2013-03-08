@@ -1,4 +1,4 @@
-ZZRGUSD5 ;RGI/CBR Unit Tests - Vocabulary API; 01/29/2013
+ZZRGUSD5 ;RGI/CBR Unit Tests - Vocabulary API; 3/8/13
  ;;1.0;UNIT TEST;;05/28/2012;
  Q:$T(^SDMAPI1)=""
  TSTART
@@ -7,7 +7,9 @@ ZZRGUSD5 ;RGI/CBR Unit Tests - Vocabulary API; 01/29/2013
  Q
 STARTUP ;
  S DTIME=500,DUZ=1,U="^"
- S DT=$P($$HTFM^XLFDT($H),".")
+ D LOGON^ZZRGUTCM
+ S DT=$$DT^XLFDT()
+ D SETUP^ZZRGUSDC()
  Q
  ;
 SHUTDOWN ;
@@ -54,7 +56,7 @@ LSTSRT ;
  D CHKEQ^XTMUNIT($G(R(6)),"A^AUTO REBOOK")
  D CHKEQ^XTMUNIT($G(R(7)),"O^OTHER THAN 'NEXT AVA.' APPT.")
  Q
-LSTSBCTG
+LSTSBCTG ;
  Q:$T(^DGSAAPI)=""
  D SUBTYP^ZZRGUSDC
  N R,%
@@ -64,8 +66,101 @@ LSTSBCTG
  D CHKEQ^XTMUNIT($G(R(1)),"1^Sharing 1")
  D CHKEQ^XTMUNIT($G(R(2)),"2^Sharing 2")
  Q
+PTFU ;
+ S RTN="S %=$$PTFU^SDMAPI1(.RETURN,.PAT,.CLN)"
+ D EXSTPAT^ZZRGUSD5(RTN)
+ D EXSTCLN^ZZRGUSD5(RTN)
+ Q
+HASPEND ;
+ S RTN="S %=$$HASPEND^SDMAPI1(.RETURN,.PAT)"
+ D EXSTPAT^ZZRGUSD5(RTN)
+ S %=$$HASPEND^SDMAPI1(.RE,DFN)
+ D CHKEQ^XTMUNIT(RE,0,"No pending appt")
+ S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SD,TYPE,,LEN,NXT,RSN)
+ S %=$$HASPEND^SDMAPI1(.RE,DFN)
+ D CHKEQ^XTMUNIT(RE,1,"Has pending appt")
+ Q
+EXSTPAT(RTN) ;
+ ;Invalid patient param
+ K PAT S CLN=SC X RTN
+ D CHKEQ^XTMUNIT(RETURN,0,"Expected error: INVPARAM")
+ D CHKEQ^XTMUNIT($P(RETURN(0),U),"INVPARAM","Expected error: INVPARAM")
+ ;patient does not exist
+ S PAT=DFN+1,CLN=SC X RTN
+ D CHKEQ^XTMUNIT(RETURN,0,"Expected error: PATNFND")
+ D CHKEQ^XTMUNIT($P(RETURN(0),U),"PATNFND","Expected error: PATNFND")
+ Q
+EXSTCLN(RTN) ;
+ ;Invalid clinic param
+ S CLN=0,PAT=DFN X RTN
+ D CHKEQ^XTMUNIT(RETURN,0,"Expected error: INVPARAM")
+ D CHKEQ^XTMUNIT($P(RETURN(0),U),"INVPARAM","Expected error: INVPARAM")
+ ;clinic does not exist
+ S CLN=SC+1,PAT=DFN X RTN
+ D CHKEQ^XTMUNIT(RETURN,0,"Expected error: CLNNFND")
+ D CHKEQ^XTMUNIT($P(RETURN(0),U),"CLNNFND","Expected error: CLNNFND")
+ Q
+CHECKO ;
+ K ^DPT(+DFN,"S"),^SC(+SC,"S") S SD=$$FMADD^XLFDT(SD,,1)
+ S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SD,TYPE,,LEN,NXT,RSN)
+ S RTN="S %=$$CHECKO^SDMAPI4(.RETURN,.PAT,SD,.CLN)"
+ D EXSTPAT^ZZRGUSD5(RTN),EXSTCLN^ZZRGUSD5(RTN)
+ ;undefined SD
+ S %=$$CHECKO^SDMAPI4(.RE,DFN,,SC)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^INVPARAM","Expected: INVPARAM SD")
+ D CHKEQ^XTMUNIT($P(RE(0),U,2)["SD",1,"Expected: INVPARAM SD")
+ ;appt not found
+ S %=$$CHECKO^SDMAPI4(.RE,DFN,2,SC)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^APTNFND","Expected: APTNFND")
+ ;
+ S %=$$CHECKO^SDMAPI4(.RETURN,DFN,SD,SC),NOW=$$NOW^XLFDT()
+ D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
+ S SC0=+DFN_"^"_+LEN_"^^"_RSN_"^^"_DUZ_"^"_DT_"^^^"
+ S SCC="^^"_NOW_"^"_DUZ_"^^"_NOW
+ D CHKEQ^XTMUNIT(^SC(+SC,"S",+SD,1,1,0),SC0,"Invalid clinic appointment - 0 node")
+ S SDOE=RETURN("SDOE")
+ S DPT0=+SC_"^^^^^^3^^^^^^^^^"_+TYPE_"^^"_DUZ_"^"_DT_"^"_SDOE_"^^^^0^"_NXT_"^3"
+ D CHKEQ^XTMUNIT(^DPT(+DFN,"S",+SD,0),DPT0,"Invalid patient appointment - 0 node")
+ S %=$$GETOE^SDMAPI4(.R,SDOE)
+ S NOD=R(.01)_U_R(.02)_U_R(.03)_U_R(.04)_U_R(.05)_U_U_R(.07)_U_R(.08)
+ D CHKEQ^XTMUNIT(NOD,$P(^SCE(SDOE,0),U,1,8),"Invalid encounter")
+ S %=$$CHECKO^SDMAPI4(.RETURN,DFN,SD,SC),NOW=$$NOW^XLFDT()
+ D CHKEQ^XTMUNIT(RETURN,0,"Expected error: APTCOAC")
+ D CHKEQ^XTMUNIT($P(RETURN(0),U),"APTCOAC","Expected error: APTCOAC")
+ Q
+DELCO ;
+ S ^XUSEC("SD SUPERVISOR",+DUZ)=""
+ S RTN="S %=$$DELCOSD^SDMAPI4(.RETURN,.PAT,SD)" D EXSTPAT^ZZRGUSD5(RTN)
+ ;undefined SD
+ S %=$$DELCOSD^SDMAPI4(.RE,DFN)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^INVPARAM","Expected: INVPARAM SD")
+ D CHKEQ^XTMUNIT($P(RE(0),U,2)["SD",1,"Expected: INVPARAM SD")
+ ;appt not found
+ S %=$$DELCOSD^SDMAPI4(.RE,DFN,2)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^APTNFND","Expected: APTNFND")
+ ;
+ S %=$$DELCOSD^SDMAPI4(.RETURN,DFN,SD),NOW=$$NOW^XLFDT()
+ D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
+ S SC0=+DFN_"^"_+LEN_"^^"_RSN_"^^"_DUZ_"^"_DT_"^^^"
+ S SCC="^^^^^"
+ D CHKEQ^XTMUNIT(^SC(+SC,"S",+SD,1,1,0),SC0,"Invalid clinic appointment - 0 node")
+ D CHKEQ^XTMUNIT(^SC(+SC,"S",+SD,1,1,"C"),SCC,"Invalid clinic appointment - C node")
+ S DPT0=+SC_"^^^^^^3^^^^^^^^^"_+TYPE_"^^"_DUZ_"^"_DT_"^"_SDOE_"^^^^0^"_NXT_"^3"
+ D CHKEQ^XTMUNIT(^DPT(+DFN,"S",+SD,0),DPT0,"Invalid patient appointment - 0 node")
+ S OE=RETURN("OE") K RETURN
+ S $P(^SCE(OE,0),U,8)=3,^SCE(OE+1,0)=^SCE(OE,0),$P(^SCE(OE+1,0),U,6)=OE
+ S ^SCE("APAR",OE,OE+1)=""
+ S %=$$GETCHLD^SDMAPI4(.RETURN,OE)
+ D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
+ S %=$$DELCOPC^SDMAPI4(.RETURN,OE,,"PCE")
+ D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
+ Q
 XTENT ;
  ;;LSTAPPST;List appointment statuses
  ;;LSTHLTP;List hospital location types
  ;;LSTSRT;List scheduling request types
  ;;LSTSBCTG;List sharing agreement sub-categories
+ ;;PTFU;;Follow-up
+ ;;HASPEND;;Has pending appt
+ ;;CHECKO;Check out appointment
+ ;;DELCO;Delete check out
