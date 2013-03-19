@@ -1,4 +1,4 @@
-ZZRGUSD1 ;Unit Tests - Clinic API; 3/8/2013
+ZZRGUSD1 ;Unit Tests - Clinic API; 3/14/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZRGUSD1")
@@ -242,7 +242,7 @@ GETCSC ;
  Q
 VARLEN ;
  K ^DPT(+DFN,"S"),^SC(+SC,"S")
- ;S ^XUSEC("SDOB",DUZ)="",^XUSEC("SDMOB",DUZ)=""
+ S ^XUSEC("SDOB",DUZ)="",^XUSEC("SDMOB",DUZ)=""
  ;future appointment cannot be checked out
  S $P(^SC(+SC,0),U,7)=STOP
  S SD0=$E($$NOW^XLFDT(),1,10),$P(^SC(+SC,"SL"),U,2)=""

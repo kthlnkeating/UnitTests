@@ -1,4 +1,4 @@
-ZZRGUSD5 ;RGI/CBR Unit Tests - Vocabulary API; 3/8/13
+ZZRGUSD5 ;RGI/CBR Unit Tests - Vocabulary API; 3/14/13
  ;;1.0;UNIT TEST;;05/28/2012;
  Q:$T(^SDMAPI1)=""
  TSTART
@@ -155,6 +155,20 @@ DELCO ;
  S %=$$DELCOPC^SDMAPI4(.RETURN,OE,,"PCE")
  D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
  Q
+MAKECAN ;
+ K ^DPT(+DFN,"S"),^SC(+SC,"S") S SD=$$FMADD^XLFDT(SD,,1)
+ S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SD,TYPE,,LEN,NXT,RSN)
+ D CHKEQ^XTMUNIT(RE,1,"Unxpected error: "_$G(RE(0)))
+ S ^XUSEC("SDOB",DUZ)="",^XUSEC("SDMOB",DUZ)=""
+ S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SD,TYPE,,LEN,NXT,RSN,,,,,,,1)
+ D CHKEQ^XTMUNIT(RE,1,"Unxpected error: "_$G(RE(0)))
+ S SC1=$$ADDCLN^ZZRGUSDC("Test Cancel Clinic")
+ D ADDPATT^ZZRGUSDC(+SC1)
+ S %=$$MAKE^SDMAPI2(.RE,DFN,SC1,SD,TYPE,,LEN,NXT,RSN)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^APTPAHA","Unxpected error: "_$G(RE(0)))
+ S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SD,TYPE,,LEN,NXT,RSN,,,,,,,1)
+ D CHKEQ^XTMUNIT(RE,1,"Unxpected error: "_$G(RE(0)))
+ Q
 XTENT ;
  ;;LSTAPPST;List appointment statuses
  ;;LSTHLTP;List hospital location types
@@ -164,3 +178,4 @@ XTENT ;
  ;;HASPEND;;Has pending appt
  ;;CHECKO;Check out appointment
  ;;DELCO;Delete check out
+ ;;MAKECAN;Make & Cancel

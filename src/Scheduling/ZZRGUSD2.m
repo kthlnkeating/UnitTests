@@ -1,4 +1,4 @@
-ZZRGUSD2 ;Unit Tests - Clinic API; 3/8/13
+ZZRGUSD2 ;Unit Tests - Clinic API; 3/19/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZRGUSD2")
@@ -150,7 +150,7 @@ CANCEL ;
  S NOW=$$NOW^XLFDT(),%=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD,"PC",CRSN)
  S SC0=+DFN_"^"_+LEN_"^^"_+CRSN_"^^"_DUZ_"^"_DT_"^^^"
  D CHKEQ^XTMUNIT($G(^SC(+SC,"S",+SD,1,1)),"","Invalid clinic appointment - 0 node")
- S DPT0=+SC_"^PC^^^^^3^^^^^"_DUZ_"^^"_$J($$NOW^XLFDT(),4,2)_"^"_+CRSN_"^"_+TYPE_"^^"_DUZ_"^"_DT_"^^^^^0^"_NXT_"^3"
+ S DPT0=+SC_"^PC^^^^^3^^^^^"_DUZ_"^^"_$J($$NOW^XLFDT(),4,2)_"^"_+CRSN_"^"_+TYPE_"^"_+SC_"^"_DUZ_"^"_DT_"^^^^^0^"_NXT_"^3"
  D CHKEQ^XTMUNIT(^DPT(+DFN,"S",+SD,0),DPT0,"Invalid patient appointment - 0 node")
  ;
  S $P(^GMR(123,CONS,0),U,12)=8
@@ -162,7 +162,7 @@ CANCEL ;
 DISCH ;
  N RSN
  S RSN="Discharge reason"
- S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SD,TYPE,,LEN,NXT,RSN,,,,,,,1)
+ S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,$$FMADD^XLFDT(+SD,1),TYPE,,LEN,NXT,RSN,,,,,,,1)
  S SC1=$$ADDCLN^ZZRGUSDC("Disch Clinic"),SCT=SC,SC=SC1
  S RTN="S %=$$GETPENRL^SDMAPI3(.RETURN,.PAT,.CLN)" D EXSTPAT^ZZRGUSD5(RTN)
  S SC=SCT
