@@ -1,4 +1,4 @@
-ZZRGUSD2 ;Unit Tests - Clinic API; 3/8/13
+ZZRGUSD2 ;Unit Tests - Clinic API; 3/21/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZRGUSD2")
@@ -41,9 +41,13 @@ MAKE ;
  D CHKEQ^XTMUNIT(^DPT(+DFN,"S",+SD,0),DPT0,"Invalid patient appointment - 0 node")
  Q
 CHECKIN ;
+ ;Invalid check-in date
+ S %=$$CHECKIN^SDMAPI2(.RETURN,DFN,SD,SC,"AA"),NOW=$$NOW^XLFDT()
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^INVPARAM","Expected: INVPARAM CIDT")
+ ;
  S %=$$CHECKIN^SDMAPI2(.RETURN,DFN,SD,SC),NOW=$$NOW^XLFDT()
  S SC0=+DFN_"^"_+LEN_"^^"_RSN_"^^"_DUZ_"^"_DT_"^^^"
- S SCC=$P(NOW,".")_"^"_DUZ_"^^^"_NOW
+ S SCC=$J(NOW,2,4)_"^"_DUZ_"^^^"_NOW
  D CHKEQ^XTMUNIT(^SC(+SC,"S",+SD,1,1,0),SC0,"Invalid clinic appointment - 0 node")
  D CHKEQ^XTMUNIT(^SC(+SC,"S",+SD,1,1,"C"),SCC,"Invalid clinic appointment - C node")
  S DPT0=+SC_"^^^^^^3^^^^^^^^^"_+TYPE_"^^"_DUZ_"^"_DT_"^^^^^0^"_NXT_"^3"
@@ -150,7 +154,7 @@ CANCEL ;
  S NOW=$$NOW^XLFDT(),%=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD,"PC",CRSN)
  S SC0=+DFN_"^"_+LEN_"^^"_+CRSN_"^^"_DUZ_"^"_DT_"^^^"
  D CHKEQ^XTMUNIT($G(^SC(+SC,"S",+SD,1,1)),"","Invalid clinic appointment - 0 node")
- S DPT0=+SC_"^PC^^^^^3^^^^^"_DUZ_"^^"_$J($$NOW^XLFDT(),4,2)_"^"_+CRSN_"^"_+TYPE_"^^"_DUZ_"^"_DT_"^^^^^0^"_NXT_"^3"
+ S DPT0=+SC_"^PC^^^^^3^^^^^"_DUZ_"^^"_$J($$NOW^XLFDT(),4,2)_"^"_+CRSN_"^"_+TYPE_"^"_+SC_"^"_DUZ_"^"_DT_"^^^^^0^"_NXT_"^3"
  D CHKEQ^XTMUNIT(^DPT(+DFN,"S",+SD,0),DPT0,"Invalid patient appointment - 0 node")
  ;
  S $P(^GMR(123,CONS,0),U,12)=8
@@ -162,9 +166,12 @@ CANCEL ;
 DISCH ;
  N RSN
  S RSN="Discharge reason"
- S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SD,TYPE,,LEN,NXT,RSN,,,,,,,1)
+ S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,$$FMADD^XLFDT(+SD,1),TYPE,,LEN,NXT,RSN,,,,,,,1)
  S SC1=$$ADDCLN^ZZRGUSDC("Disch Clinic"),SCT=SC,SC=SC1
- S RTN="S %=$$GETPENRL^SDMAPI3(.RETURN,.PAT,.CLN)" D EXSTPAT^ZZRGUSD5(RTN)
+ S RTN="S %=$$GETPENRL^SDMAPI3(.RETURN,.PAT,.CLN)" D EXSTPAT^ZZRGUSD5(RTN),EXSTCLN^ZZRGUSD5(RTN)
+ S %=$$GETPENRL^SDMAPI3(.ENS,DFN,SC1,"A")
+ D CHKEQ^XTMUNIT(ENS,0,"Expected error: INVPARAM")
+ D CHKEQ^XTMUNIT($P(ENS(0),U),"INVPARAM","Expected error: INVPARAM")
  S SC=SCT
  S %=$$GETPENRL^SDMAPI3(.ENS,DFN,SC1)
  D CHKEQ^XTMUNIT(ENS(+SC1,"NAME"),"Disch Clinic","Expected clinic: Disch Clinic")
@@ -174,12 +181,12 @@ DISCH ;
  D CHKEQ^XTMUNIT(ENS(+SC,"EN",1,"ENROLLMENT"),DT,"Invalid enrollment date")
  S ENS(+SC,"EN",1,"DISCHARGE")=DT
  S ENS(+SC,"EN",1,"REASON")=RSN
- S RTN="S %=$$DISCH^SDMAPI3(.RETURN,.ENS,.PAT)" D EXSTPAT^ZZRGUSD5(RTN)
- S %=$$DISCH^SDMAPI3(.RETURN,.ENS,DFN)
+ S RTN="S %=$$DISCH^SDMAPI3(.RETURN,.PAT,.SD,.CLN)" D EXSTPAT^ZZRGUSD5(RTN)
+ S %=$$DISCH^SDMAPI3(.RETURN,DFN,SD)
  D CHKEQ^XTMUNIT(RETURN,0,"Expected error: PATDHFA")
  D CHKEQ^XTMUNIT($P(RETURN(0),U),"PATDHFA","Expected error: PATDHFA")
  K ^DPT(+DFN,"S"),^SC(+SC,"S")
- S %=$$DISCH^SDMAPI3(.RETURN,.ENS,DFN)
+ S %=$$DISCH^SDMAPI3(.RETURN,DFN,SD,SC,RSN)
  D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
  D CHKEQ^XTMUNIT(^DPT(+DFN,"DE",1,0),+SC_"^I","Expected status: Inactive")
  D CHKEQ^XTMUNIT(^DPT(+DFN,"DE",1,1,1,0),DT_"^O^"_DT_U_RSN_U,"Expected status: Inactive")
@@ -193,10 +200,10 @@ MAKECI ;
  D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
  D CHKEQ^XTMUNIT($G(RETURN("CI")),"","Future Appt cannot be checked in.")
  ;appt checked in
- S SDPAST=$E($$NOW^XLFDT(),1,10)
+ S SDPAST=$J($$NOW^XLFDT(),2,4)
  S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SDPAST,TYPE,,LEN,NXT,RSN,"CI",,,,,CONS,1)
  D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
- D CHKEQ^XTMUNIT($G(RETURN("CI")),+SDPAST,"Incorrect check in date")
+ D CHKEQ^XTMUNIT($G(RETURN("CI")),SDPAST,"Incorrect check in date")
  ;past appointment cannot be checked in
  S SDPAST=$E($$FMADD^XLFDT($$NOW^XLFDT(),-1),1,10)
  S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SDPAST,TYPE,,LEN,NXT,RSN,"CI",,,,,CONS,1)

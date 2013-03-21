@@ -21,7 +21,7 @@ MAKEUS ;
  S RTN="S %=$$MAKEUS^SDMAPI2(.RETURN,.PAT,.CLN,SDD,TYPE)"
  D EXSTPAT^ZZRGUSD5(RTN),EXSTCLN^ZZRGUSD5(RTN)
  ;undefined SD
- S %=$$MAKEUS^SDMAPI2(.RE,DFN,SC,)
+ S %=$$MAKEUS^SDMAPI2(.RE,DFN,SC,"AA")
  D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^INVPARAM","Expected: INVPARAM SD")
  D CHKEQ^XTMUNIT($P(RE(0),U,2)["SD",1,"Expected: INVPARAM SD")
  ;undefined TYP
@@ -29,12 +29,12 @@ MAKEUS ;
  D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^INVPARAM","Expected: INVPARAM TYPE")
  D CHKEQ^XTMUNIT($P(RE(0),U,2)["TYPE",1,"Expected: INVPARAM TYPE")
  ;
- S %=$$MAKEUS^SDMAPI2(.RETURN,DFN,SC,SDD,TYPE)
- D CHKEQ^XTMUNIT(RETURN,1,"Unexpected error: ")
+ S %=$$MAKEUS^SDMAPI2(.RE,DFN,SC,,TYPE)
+ D CHKEQ^XTMUNIT(RE,1,"Unexpected error: ")
  S SC0=+DFN_"^"_+LEN_"^^^^"_DUZ_"^"_DT
- D CHKEQ^XTMUNIT(^SC(+SC,"S",+SDD,1,1,0),SC0,"Invalid clinic appointment - 0 node")
+ D CHKEQ^XTMUNIT(^SC(+SC,"S",+RE(1),1,1,0),SC0,"Invalid clinic appointment - 0 node")
  S DPT0=+SC_"^^^^^^4^^^^^^^^^"_+TYPE_"^^"_DUZ_"^"_DT_"^^^^^0^W^0"
- D CHKEQ^XTMUNIT(^DPT(+DFN,"S",+SDD,0),DPT0,"Invalid patient appointment - 0 node")
+ D CHKEQ^XTMUNIT(^DPT(+DFN,"S",+RE(1),0),DPT0,"Invalid patient appointment - 0 node")
  ;future appt
  S %=$$MAKEUS^SDMAPI2(.RETURN,DFN,SC,$$FMADD^XLFDT($$NOW^XLFDT(),1),TYPE)
  D CHKEQ^XTMUNIT(RETURN,0,"Expected error: INVPARAM")
@@ -81,7 +81,7 @@ MAKECI ;
  D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
  D CHKEQ^XTMUNIT($G(RETURN("CI")),"","Future Appt cannot be checked in.")
  ;appt checked in
- S SDPAST=$E($$NOW^XLFDT(),1,10)
+ S SDPAST=$J($$NOW^XLFDT(),2,4)
  S %=$$MAKEUS^SDMAPI2(.RETURN,DFN,SC,SDPAST,TYPE,,.CIO)
  D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
  D CHKEQ^XTMUNIT($G(RETURN("CI")),+SDPAST,"Incorrect check in date")
@@ -131,8 +131,11 @@ CHKSTYP ; Check appt subtype
  D CHKEQ^XTMUNIT(^SC(+SC,"S",+SDD,1,1,0),SC0,"Invalid clinic appointment - 0 node")
  S DPT0=+SC_"^^^^^^4^^^^^^^^^"_+TYPE_"^^"_DUZ_"^"_DT_"^^^^^"_+STYP_"^W^0"
  D CHKEQ^XTMUNIT(^DPT(+DFN,"S",+SDD,0),DPT0,"Invalid patient appointment - 0 node")
- ; Appointment subtype
+ ; Invalid sub type
  K ^SC(+SC,"ST",$P(SD,".")) S SDD=$P(SD,".",1)_".11"
+ S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SDD,TYPE,"AA",LEN,NXT,RSN,,,,,,,1)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^INVPARAM","Expected error: INVPARAM")
+ ; Appointment subtype
  S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SDD,TYPE,STYP,LEN,NXT,RSN,,,,,,,1)
  D CHKEQ^XTMUNIT(RETURN,1,"Unexpected error: "_$G(RETURN(0)))
  S SC0=+DFN_"^"_+LEN_"^^"_RSN_"^^"_DUZ_"^"_DT
@@ -150,6 +153,54 @@ LSTASTYP ;Check appt subtype
  D CHKEQ^XTMUNIT(RETURN(2,"NAME"),"Sharing 2","Invalid appt subtype NAME")
  D CHKEQ^XTMUNIT(RETURN(2,"STATUS"),"YES","Invalid appt subtype NAME")
  Q
+MAKENA ; Request type
+ S SD1=$$FMADD^XLFDT(SD,-2)
+ ; Invalid scheduling request type
+ S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SD1,TYPE,,LEN,,RSN,,,,,,,1)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^INVPARAM","Expected error: INVPARAM")
+ ; Scheduling request type not found
+ S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SD1,TYPE,,LEN,"AAA",RSN,,,,,,,1)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^SRTNFND","Expected error: SRTNFND")
+ ; Scheduling request type
+ S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SD1,TYPE,,LEN,NXT,RSN,,,,,,,1)
+ D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
+ Q
+MAKELAB ; LAB, EKG or X-RAY
+ S SD1=$$FMADD^XLFDT(SD,1)
+ ; Invalid LAB
+ S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SD1,TYPE,,LEN,NXT,RSN,,"AA",,,,,1)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^INVPARAM","Expected error: INVPARAM")
+ ; Invalid LAB
+ S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SD1,TYPE,,LEN,NXT,RSN,,SD1,,,,,1)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^TSTAHAPT","Expected error: TSTAHAPT")
+ ; Invalid XRAY
+ S LAB=$$FMADD^XLFDT(SD1,,1)
+ S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SD1,TYPE,,LEN,NXT,RSN,,LAB,"AA",,,,1)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^INVPARAM","Expected error: INVPARAM")
+ ; Invalid XRAY
+ S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SD1,TYPE,,LEN,NXT,RSN,,LAB,SD1,,,,1)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^TSTAHAPT","Expected error: TSTAHAPT")
+ ; Invalid EKG
+ S LAB=$$FMADD^XLFDT(SD1,,1)
+ S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SD1,TYPE,,LEN,NXT,RSN,,LAB,LAB,"AA",,,1)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^INVPARAM","Expected error: INVPARAM")
+ ; Invalid EKG
+ S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SD1,TYPE,,LEN,NXT,RSN,,LAB,LAB,SD1,,,1)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^TSTAHAPT","Expected error: TSTAHAPT")
+ ; Already has apt
+ S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SD1,TYPE,,LEN,NXT,RSN,,SD,SD,SD,,,1)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^TSTAHAPT","Expected error: TSTAHAPT")
+ ; Invalid consult param
+ S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SD1,TYPE,,LEN,NXT,RSN,,LAB,LAB,LAB,,"AAA",1)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^INVPARAM","Expected error: INVPARAM")
+ ; Invalid consult
+ S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SD1,TYPE,,LEN,NXT,RSN,,LAB,LAB,LAB,,1,1)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^CNSNFND","Expected error: CNSNFND")
+ ; Valid appt
+ S ^GMR(123,1,0)=""
+ S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SD1,TYPE,,LEN,NXT,RSN,,LAB,LAB,LAB,,1,1)
+ D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
+ Q
 XTENT ;
  ;;MAKEUS;Make unscheduled appointment
  ;;MAKECI;Make appt check-in
@@ -157,3 +208,5 @@ XTENT ;
  ;;CHKTYP;Check appt type
  ;;CHKSTYP;Check appt subtype
  ;;LSTASTYP;Check appt subtype
+ ;;MAKENA;Request type
+ ;;MAKELAB;LAB, EKG or X-RAY

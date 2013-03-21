@@ -1,4 +1,4 @@
-ZZRGUSD5 ;RGI/CBR Unit Tests - Vocabulary API; 3/8/13
+ZZRGUSD5 ;RGI/CBR Unit Tests - Vocabulary API; 3/14/13
  ;;1.0;UNIT TEST;;05/28/2012;
  Q:$T(^SDMAPI1)=""
  TSTART
@@ -121,6 +121,12 @@ CHECKO ;
  S SDOE=RETURN("SDOE")
  S DPT0=+SC_"^^^^^^3^^^^^^^^^"_+TYPE_"^^"_DUZ_"^"_DT_"^"_SDOE_"^^^^0^"_NXT_"^3"
  D CHKEQ^XTMUNIT(^DPT(+DFN,"S",+SD,0),DPT0,"Invalid patient appointment - 0 node")
+ ; Invalid SDOE param
+ S %=$$GETOE^SDMAPI4(.R,"AAA")
+ D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^INVPARAM","Expected error: INVPARAM")
+ ; Outpatient encounter not found
+ S %=$$GETOE^SDMAPI4(.R,SDOE+1)
+ D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^OENFND","Expected error: OENFND")
  S %=$$GETOE^SDMAPI4(.R,SDOE)
  S NOD=R(.01)_U_R(.02)_U_R(.03)_U_R(.04)_U_R(.05)_U_U_R(.07)_U_R(.08)
  D CHKEQ^XTMUNIT(NOD,$P(^SCE(SDOE,0),U,1,8),"Invalid encounter")
@@ -155,12 +161,45 @@ DELCO ;
  S %=$$DELCOPC^SDMAPI4(.RETURN,OE,,"PCE")
  D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
  Q
+MAKECAN ;
+ K ^DPT(+DFN,"S"),^SC(+SC,"S") S SD=$$FMADD^XLFDT(SD,,1)
+ S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SD,TYPE,,LEN,NXT,RSN)
+ D CHKEQ^XTMUNIT(RE,1,"Unxpected error: "_$G(RE(0)))
+ S ^XUSEC("SDOB",DUZ)="",^XUSEC("SDMOB",DUZ)=""
+ S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SD,TYPE,,LEN,NXT,RSN,,,,,,,1)
+ D CHKEQ^XTMUNIT(RE,1,"Unxpected error: "_$G(RE(0)))
+ S SC1=$$ADDCLN^ZZRGUSDC("Test Cancel Clinic")
+ D ADDPATT^ZZRGUSDC(+SC1)
+ S %=$$MAKE^SDMAPI2(.RE,DFN,SC1,SD,TYPE,,LEN,NXT,RSN)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^APTPAHA","Unxpected error: "_$G(RE(0)))
+ S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SD,TYPE,,LEN,NXT,RSN,,,,,,,1)
+ D CHKEQ^XTMUNIT(RE,1,"Unxpected error: "_$G(RE(0)))
+ Q
+GETEAM ; Get team
+ ; Invalid parameter
+ S %=$$GETEAM^SCTMAPI1(.RE,)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^INVPARAM","Expected: INVPARAM SCTM")
+ ; Team not found
+ S %=$$GETEAM^SCTMAPI1(.RE,4)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^TEAMNFND","Expected: TEAMNFND")
+ Q
+GETEAMPO ; Get team position
+ ; Invalid parameter
+ S %=$$GETEAMPO^SCTMAPI1(.RE,)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^INVPARAM","Expected: INVPARAM SCTM")
+ ; Team position not found
+ S %=$$GETEAMPO^SCTMAPI1(.RE,4)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^TEAMNFND","Expected: TEAMNFND")
+ Q
 XTENT ;
  ;;LSTAPPST;List appointment statuses
  ;;LSTHLTP;List hospital location types
  ;;LSTSRT;List scheduling request types
  ;;LSTSBCTG;List sharing agreement sub-categories
  ;;PTFU;;Follow-up
- ;;HASPEND;;Has pending appt
+ ;;HASPEND;;Has pending apptS
  ;;CHECKO;Check out appointment
  ;;DELCO;Delete check out
+ ;;MAKECAN;Make & Cancel
+ ;;GETEAM;Get team
+ ;;GETEAMPO;Get team position
