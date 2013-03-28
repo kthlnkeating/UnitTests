@@ -1,4 +1,4 @@
-ZZRGUTRB ;RGI/CBR - Unit Tests - RPC Broker ;3/18/2013
+ZZRGUTRB ;RGI/CBR - Unit Tests - RPC Broker ;3/28/2013
  ;;1.0;UNIT TEST;;Apr 25, 2012;Build 1
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZRGUTRB")
@@ -121,14 +121,15 @@ DUP ;
  Q
  ;
 INITUSER ;
- N RET
+ N RET,SITE
  D INITUSER^ORQQPL1(.RET,DUZ)
+ S SITE=$G(^GMPL(125.99,1,0))
  D CHKEQ^XTMUNIT("1",$G(RET(0)),"INITUSER: Is clinical user?")
  D CHKEQ^XTMUNIT("",$G(RET(1)),"INITUSER: Default view")
- D CHKEQ^XTMUNIT("1",$G(RET(2)),"INITUSER: Verify transcribed problems?")
- D CHKEQ^XTMUNIT("1",$G(RET(3)),"INITUSER: Prompt for chart copy?")
- D CHKEQ^XTMUNIT("1",$G(RET(4)),"INITUSER: Use lexicon?")
- D CHKEQ^XTMUNIT("0",$G(RET(5)),"INITUSER: Chronologycal or reverse chron listing?")
+ D CHKEQ^XTMUNIT($P(SITE,U,2),$G(RET(2)),"INITUSER: Verify transcribed problems?")
+ D CHKEQ^XTMUNIT($P(SITE,U,3),$G(RET(3)),"INITUSER: Prompt for chart copy?")
+ D CHKEQ^XTMUNIT($P(SITE,U,4),$G(RET(4)),"INITUSER: Use lexicon?")
+ D CHKEQ^XTMUNIT($S($P(SITE,U,5)="R":1,1:0),$G(RET(5)),"INITUSER: Chronological or reverse chron listing?")
  D CHKEQ^XTMUNIT("A",$G(RET(6)),"INITUSER: Context problems")
  D CHKEQ^XTMUNIT("0^All",$G(RET(7)),"INITUSER: PROVIDER^NAME")
  D CHKEQ^XTMUNIT("",$G(RET(8)),"INITUSER: user's service/section")

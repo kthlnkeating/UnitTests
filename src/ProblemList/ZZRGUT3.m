@@ -1,5 +1,6 @@
-ZZRGUT3 ;RGI/VSL - Unit Tests - Problem List ;4/24/12
+ZZRGUT3 ;RGI/VSL - Unit Tests - Problem List ;3/28/13
  ;;1.0;UNIT TEST;;Apr 25, 2012;Build 1;
+ Q:$T(^GMPLAPI1)=""
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZRGUT3")
  TROLLBACK
@@ -69,7 +70,7 @@ GETCAT ;
  D CHKEQ^XTMUNIT("1^33572^Diabetes Insipidus^253.5",RETURN(PROBLAST),"Incorrect problem.")
  D CHKEQ^XTMUNIT("253.5^0",RETURN(PROBLAST,"CODE"),"Incorrect problem code.")
  D CHKEQ^XTMUNIT(CATNAME,RETURN("CAT","NAME"),"Incorrect category name.")
- D CHKEQ^XTMUNIT($$FMTE^XLFDT(DT),RETURN("CAT","MODIFIED"),"Incorrect modified date.")
+ D CHKEQ^XTMUNIT(DT_U_$$FMTE^XLFDT(DT),RETURN("CAT","MODIFIED"),"Incorrect modified date.")
  Q
  ;
 GETLST ;
@@ -91,8 +92,8 @@ GETLST ;
  D CHKEQ^XTMUNIT(LSTCLAST,RETURN("GRP",+LIST("CAT")),"Incorrect category IFN.")
  D CHKEQ^XTMUNIT("Diabetes Insipidus^253.5^0^33572",RETURN("GRP",+LIST("CAT"),1),"Incorrect problem.")
  D CHKEQ^XTMUNIT(LSTNAME,RETURN("LST","NAME"),"Incorrect list name.")
- D CHKEQ^XTMUNIT($$FMTE^XLFDT(DT),RETURN("LST","MODIFIED"),"Incorrect modified date.")
- D CHKEQ^XTMUNIT($P(^SC(LOC,0),U,1),RETURN("LST","CLINIC"),"Incorrect clinic.")
+ D CHKEQ^XTMUNIT(DT_U_$$FMTE^XLFDT(DT),RETURN("LST","MODIFIED"),"Incorrect modified date.")
+ D CHKEQ^XTMUNIT(LOC_U_$P(^SC(LOC,0),U,1),RETURN("LST","CLINIC"),"Incorrect clinic.")
  Q
  ;
 GETCATD ;
@@ -180,7 +181,7 @@ GETASUSR ;
  . . S ASCNT=ASCNT+1
  . . D CHKEQ^XTMUNIT(IFN,RETURN(ASCNT,"ID"),"Incorrect user IFN.")
  . . D CHKEQ^XTMUNIT($P(^VA(200,IFN,0),U,1),RETURN(ASCNT,"NAME"),"Incorrect user name.")
- D CHKEQ^XTMUNIT(ASCNT_U_"*"_U_"0"_U,RETURN(0),"Incorrect number of categories.")
+ D CHKEQ^XTMUNIT(ASCNT,RETURN(0),"Incorrect number of categories.")
  ;
  Q
  ;
