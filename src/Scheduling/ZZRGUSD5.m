@@ -189,7 +189,7 @@ GETEAMPO ; Get team position
  D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^INVPARAM","Expected: INVPARAM SCTM")
  ; Team position not found
  S %=$$GETEAMPO^SCTMAPI1(.RE,4)
- D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^TEAMNFND","Expected: TEAMNFND")
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^TMPONFND","Expected: TEAMNFND")
  Q
 XTENT ;
  ;;LSTAPPST;List appointment statuses
