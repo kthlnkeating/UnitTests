@@ -1,4 +1,4 @@
-ZZRGUSD5 ;RGI/CBR Unit Tests - Vocabulary API; 3/14/13
+ZZRGUSD5 ;RGI/CBR Unit Tests - Vocabulary API; 4/3/13
  ;;1.0;UNIT TEST;;05/28/2012;
  Q:$T(^SDMAPI1)=""
  TSTART
@@ -96,7 +96,7 @@ EXSTCLN(RTN) ;
  D CHKEQ^XTMUNIT(RETURN,0,"Expected error: INVPARAM")
  D CHKEQ^XTMUNIT($P(RETURN(0),U),"INVPARAM","Expected error: INVPARAM")
  ;clinic does not exist
- S CLN=SC+1,PAT=DFN X RTN
+ S CLN=SC+3,PAT=DFN X RTN
  D CHKEQ^XTMUNIT(RETURN,0,"Expected error: CLNNFND")
  D CHKEQ^XTMUNIT($P(RETURN(0),U),"CLNNFND","Expected error: CLNNFND")
  Q
@@ -175,21 +175,55 @@ MAKECAN ;
  S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SD,TYPE,,LEN,NXT,RSN,,,,,,,1)
  D CHKEQ^XTMUNIT(RE,1,"Unxpected error: "_$G(RE(0)))
  Q
-GETEAM ; Get team
- ; Invalid parameter
- S %=$$GETEAM^SCTMAPI1(.RE,)
- D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^INVPARAM","Expected: INVPARAM SCTM")
- ; Team not found
- S %=$$GETEAM^SCTMAPI1(.RE,4)
- D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^TEAMNFND","Expected: TEAMNFND")
- Q
-GETEAMPO ; Get team position
- ; Invalid parameter
- S %=$$GETEAMPO^SCTMAPI1(.RE,)
- D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^INVPARAM","Expected: INVPARAM SCTM")
- ; Team position not found
- S %=$$GETEAMPO^SCTMAPI1(.RE,4)
- D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^TMPONFND","Expected: TEAMNFND")
+DISCH ;
+ N RSN
+ S RSN="Discharge reason"
+ ;Patient not enrolled.
+ S %=$$DISCH^SDMAPI3(.RE,DFN,SD)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^PATNAEAC","Expected error: PATNAEAC")
+ ;
+ S %=$$MAKE^SDMAPI2(.RE,DFN,SC,$$FMADD^XLFDT(+SD,1),TYPE,,LEN,NXT,RSN,,,,,,,1)
+ S SC1=$$ADDCLN^ZZRGUSDC("Disch Clinic"),SCT=SC,SC=SC1
+ S RTN="S %=$$GETPENRL^SDMAPI3(.RETURN,.PAT,.CLN)" D EXSTPAT^ZZRGUSD5(RTN),EXSTCLN^ZZRGUSD5(RTN)
+ S %=$$GETPENRL^SDMAPI3(.ENS,DFN,SC1,"A")
+ D CHKEQ^XTMUNIT(ENS_U_$P(ENS(0),U),"0^INVPARAM","Expected error: INVPARAM")
+ S SC=SCT
+ S %=$$GETPENRL^SDMAPI3(.ENS,DFN,SC1)
+ D CHKEQ^XTMUNIT(ENS(+SC1,"NAME"),"Disch Clinic","Expected clinic: Disch Clinic")
+ D SETENR^ZZRGUSDC(DFN,SC)
+ S %=$$GETPENRL^SDMAPI3(.ENS,DFN,SC)
+ D CHKEQ^XTMUNIT(ENS(+SC,"STATUS"),"","Expected status: Active")
+ D CHKEQ^XTMUNIT(ENS(+SC,"EN",1,"ENROLLMENT"),DT,"Invalid enrollment date")
+ S ENS(+SC,"EN",1,"DISCHARGE")=DT
+ S ENS(+SC,"EN",1,"REASON")=RSN
+ S RTN="S %=$$DISCH^SDMAPI3(.RETURN,.PAT,.SD,.CLN)" D EXSTPAT^ZZRGUSD5(RTN),EXSTCLN^ZZRGUSD5(RTN)
+ ; invalid date
+ S %=$$DISCH^SDMAPI3(.RE,DFN)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^INVPARAM","Expected error: INVPARAM")
+ S %=$$DISCH^SDMAPI3(.RE,DFN,"AAA")
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^INVPARAM","Expected error: INVPARAM")
+ ; patient has future appts
+ S %=$$DISCH^SDMAPI3(.RE,DFN,SD)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^PATDHFA","Expected error: PATDHFA")
+ ; discharge
+ K ^DPT(+DFN,"S"),^SC(+SC,"S")
+ S %=$$DISCH^SDMAPI3(.RETURN,DFN,SD,SC,RSN)
+ D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
+ D CHKEQ^XTMUNIT(^DPT(+DFN,"DE",1,0),+SC_"^I","Expected status: Inactive")
+ D CHKEQ^XTMUNIT(^DPT(+DFN,"DE",1,1,1,0),DT_"^O^"_DT_U_RSN_U,"Expected status: Inactive")
+ ;Patient not enrolled.
+ S %=$$DISCH^SDMAPI3(.RE,DFN,SD)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^PATNAEAC","Expected error: PATNAEAC")
+ ; Patient not enrolled in... clinic
+ S %=$$DISCH^SDMAPI3(.RE,DFN,SD,SC-1,RSN)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^PATDNEN","Expected error: PATDNEN")
+ ; already discharged
+ S %=$$DISCH^SDMAPI3(.RE,DFN,SD,SC,RSN)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^PATDARD","Expected error: PATDARD")
+ ; discharge active enrolls
+ S $P(^DPT(+DFN,"DE",1,0),U,2)=""
+ S %=$$DISCH^SDMAPI3(.RE,DFN,SD,,RSN)
+ D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
  Q
 XTENT ;
  ;;LSTAPPST;List appointment statuses
@@ -201,5 +235,4 @@ XTENT ;
  ;;CHECKO;Check out appointment
  ;;DELCO;Delete check out
  ;;MAKECAN;Make & Cancel
- ;;GETEAM;Get team
- ;;GETEAMPO;Get team position
+ ;;DISCH;Discharge from clinic

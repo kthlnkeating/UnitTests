@@ -1,4 +1,4 @@
-ZZRGUSDC ;Unit Tests - Clinic API; 1/29/2013
+ZZRGUSDC ;Unit Tests - Clinic API; 4/3/13
  ;;1.0;UNIT TEST;;05/28/2012;
 ADDCLN(NAME) ; Add new clinic
  N IEN
@@ -46,9 +46,11 @@ SETUP(PNM,CNM) ;
  S:$D(CNM) CNAME=CNM
  S:'$D(PNM) PNAME="TEST,PATIENT"
  S:'$D(CNM) CNAME="Test Clinic"
+ S SC2=$$ADDCLN("Second clinic")
  S SC=$$ADDCLN(CNAME)
  S DFN=$$ADDPAT(PNAME)
  D ADDPATT(+SC)
+ D ADDPATT(+SC2)
  S SD=DT_".08",SD=SD_U_$$FMTE^XLFDT(SD)
  S RSN="Test Reason",LEN="30^30",TYPE="9^REGULAR",NXT="N"
  S CRSN="11^OTHER",STYP="2^Sharing 2"
