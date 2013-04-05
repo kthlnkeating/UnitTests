@@ -1,11 +1,12 @@
 ZZRGUT4 ;RGI/VSL - Unit Tests - Problem List ;4/24/12
  ;;1.0;UNIT TEST;;Apr 25, 2012;Build 1;
+ Q:$T(^GMPLAPI1)=""
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZRGUT4")
  TROLLBACK
  Q
  ;
-STARTUP ; 
+STARTUP ;
  S U="^"
  S DT=$P($$HTFM^XLFDT($H),".")
  S LSTNAME="List"_DT
@@ -25,7 +26,7 @@ STARTUP ;
  S %=$$ASSUSR^GMPLAPI6(.RETURN,LSTLAST,DUZ)
  Q
  ;
-SETUP ; 
+SETUP ;
  Q
  ;
 SHUTDOWN ;
