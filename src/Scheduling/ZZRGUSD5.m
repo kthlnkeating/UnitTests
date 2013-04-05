@@ -96,7 +96,7 @@ EXSTCLN(RTN) ;
  D CHKEQ^XTMUNIT(RETURN,0,"Expected error: INVPARAM")
  D CHKEQ^XTMUNIT($P(RETURN(0),U),"INVPARAM","Expected error: INVPARAM")
  ;clinic does not exist
- S CLN=SC+3,PAT=DFN X RTN
+ S CLN=9999999,PAT=DFN X RTN
  D CHKEQ^XTMUNIT(RETURN,0,"Expected error: CLNNFND")
  D CHKEQ^XTMUNIT($P(RETURN(0),U),"CLNNFND","Expected error: CLNNFND")
  Q
@@ -215,10 +215,10 @@ DISCH ;
  S %=$$DISCH^SDMAPI3(.RE,DFN,SD)
  D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^PATNAEAC","Expected error: PATNAEAC")
  ; Patient not enrolled in... clinic
- S %=$$DISCH^SDMAPI3(.RE,DFN,SD,SC-1,RSN)
+ S %=$$DISCH^SDMAPI3(.RE,DFN,SD,+SC2,RSN)
  D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^PATDNEN","Expected error: PATDNEN")
  ; already discharged
- S %=$$DISCH^SDMAPI3(.RE,DFN,SD,SC,RSN)
+ S %=$$DISCH^SDMAPI3(.RE,DFN,SD,+SC,RSN)
  D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^PATDARD","Expected error: PATDARD")
  ; discharge active enrolls
  S $P(^DPT(+DFN,"DE",1,0),U,2)=""

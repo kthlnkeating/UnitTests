@@ -27,15 +27,15 @@ GETEAM ; Get team
  S %=$$GETEAM^SCTMAPI1(.R,TM)
  D CHKEQ^XTMUNIT(R,1,"Unexpected: "_$G(R(0)))
  S TM0=^SCTM(404.51,TM,0),TMH0=$G(^SCTM(404.58,TM,0))
- D CHKEQ^XTMUNIT(R("CAN ACT AS A PC TEAM?"),$P(TM0,U,5)_U_$S($P(TM0,U,5):"YES",1:"NO"),"Can act PC")
+ D CHKEQ^XTMUNIT(R("CAN ACT AS A PC TEAM?"),$$STRIP($P(TM0,U,5)_U_$S($P(TM0,U,5):"YES",1:"NO")),"Can act PC")
  D CHKEQ^XTMUNIT(R("CURRENT # OF PATIENTS"),"0^0","No of patients")
- D CHKEQ^XTMUNIT($P(R("CURRENT STATUS"),U),$S('+TMH0!('$P(TMH0,U,3)):"Inactive",1:"Active"),"Current status")
- D CHKEQ^XTMUNIT(R("NAME"),$P(TM0,U)_U_$P(TM0,U),"Team name")
- D CHKEQ^XTMUNIT(R("TEAM PURPOSE"),$P(TM0,U,3)_U_$P(^SD(403.47,$P(TM0,U,3),0),U),"Team purpose")
- D CHKEQ^XTMUNIT(R("SERVICE/DEPARTMENT"),$P(TM0,U,6)_U_$P(^DIC(49,$P(TM0,U,6),0),U),"Service")
- D CHKEQ^XTMUNIT(R("INSTITUTION"),$P(TM0,U,7)_U_$P(^DIC(4,$P(TM0,U,7),0),U),"Institution")
- D CHKEQ^XTMUNIT(R("MAX NUMBER OF PATIENTS"),$P(TM0,U,8)_U_$P(TM0,U,8),"Max no of patients")
- D CHKEQ^XTMUNIT(R("MAX % OF PRIMARY CARE PATIENTS"),$P(TM0,U,9)_U_$P(TM0,U,9),"Max no of PC patients")
+ D CHKEQ^XTMUNIT($P(R("CURRENT STATUS"),U),$$STRIP($S('+TMH0!('$P(TMH0,U,3)):"Inactive",1:"Active")),"Current status")
+ D CHKEQ^XTMUNIT(R("NAME"),$$STRIP($P(TM0,U)_U_$P(TM0,U)),"Team name")
+ D CHKEQ^XTMUNIT(R("TEAM PURPOSE"),$$STRIP($P(TM0,U,3)_U_$P(^SD(403.47,$P(TM0,U,3),0),U)),"Team purpose")
+ D CHKEQ^XTMUNIT(R("SERVICE/DEPARTMENT"),$$STRIP($P(TM0,U,6)_U_$P(^DIC(49,$P(TM0,U,6),0),U)),"Service")
+ D CHKEQ^XTMUNIT(R("INSTITUTION"),$$STRIP($P(TM0,U,7)_U_$P(^DIC(4,$P(TM0,U,7),0),U)),"Institution")
+ D CHKEQ^XTMUNIT(R("MAX NUMBER OF PATIENTS"),$$STRIP($P(TM0,U,8)_U_$P(TM0,U,8)),"Max no of patients")
+ D CHKEQ^XTMUNIT(R("MAX % OF PRIMARY CARE PATIENTS"),$$STRIP($P(TM0,U,9)_U_$P(TM0,U,9)),"Max no of PC patients")
  D CHKEQ^XTMUNIT(+R("CLOSE TO FURTHER ASSIGNMENT?"),+$P(TM0,U,10),"Close to further assignment")
  D CHKEQ^XTMUNIT(+R("AUTO-ASSIGN FROM ASSC CLINICS?"),+$P(TM0,U,11),"Auto-assign")
  D CHKEQ^XTMUNIT(+R("DISCHARGE FROM ASSOC. CLINICS?"),+$P(TM0,U,12),"Discharge from assoc")
@@ -45,6 +45,11 @@ GETEAM ; Get team
  D CHKEQ^XTMUNIT($P(R("CURRENT EFFECTIVE DATE"),U),$S($P(TMH0,U,3):EDT,1:""),"Effective date")
  D CHKEQ^XTMUNIT(R("CURRENT INACTIVATION DATE"),"","Inactivation date")
  Q
+ ;
+STRIP(STR) ;If STR equals '^' return ''
+ I $G(STR)="^" Q ""
+ Q $G(STR)
+ ;
 GETEAMPO ; Get team position
  ; Invalid parameter
  S %=$$GETEAMPO^SCTMAPI1(.R,)
