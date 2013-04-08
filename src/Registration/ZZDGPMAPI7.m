@@ -1,4 +1,4 @@
-ZZDGPMAPI7 ;Unit Tests - Clinic API; 2/20/2013
+ZZDGPMAPI7 ;Unit Tests - Clinic API; 4/2/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI7")
@@ -53,8 +53,8 @@ LSTFCTY ;
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
  D CHKEQ^XTMUNIT(RE(1,"ID"),IFN,"Incorrect IFN")
  D CHKEQ^XTMUNIT(RE(1,"NAME"),$P(^DIC(4,IFN,0),U),"Incorrect name")
- D CHKEQ^XTMUNIT(RE(1,"STATE"),$P(^DIC(5,$P(^DIC(4,IFN,0),U,2),0),U),"Incorrect state")
- D CHKEQ^XTMUNIT(RE(1,"TYPE"),$P(^DIC(4.1,$P(^DIC(4,IFN,3),U),0),U),"Incorrect type")
+ ;D CHKEQ^XTMUNIT(RE(1,"STATE"),$P(^DIC(5,$P(^DIC(4,IFN,0),U,2),0),U),"Incorrect state")
+ ;D CHKEQ^XTMUNIT(RE(1,"TYPE"),$P(^DIC(4.1,$P(^DIC(4,IFN,3),U),0),U),"Incorrect type")
  Q
 LSTWARD ;
  S IFN=$P(^DIC(42,0),U,3),NAME=$P(^DIC(42,IFN,0),U)
@@ -77,14 +77,14 @@ LSTWBED ;
  D CHKEQ^XTMUNIT(RE(1,"DESC"),$P(^DG(405.4,+BED1,0),U,2),"Incorrect desc")
  Q
 LSTPATS ;
- S IFN=$P(^DPT(0),U,3),NAME=$P(^DPT(IFN,0),U)
+ S IFN=+DFN,NAME=$P(^DPT(+DFN,0),U)
  S %=$$LSTPATS^DGPMAPI7(.RE,NAME,,)
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
  D CHKEQ^XTMUNIT(RE(1,"ID"),+IFN,"Incorrect IFN")
  D CHKEQ^XTMUNIT(RE(1,"NAME"),$P(^DPT(IFN,0),U),"Incorrect name")
  D CHKEQ^XTMUNIT(RE(1,"SSN"),$P(^DPT(IFN,0),U,9),"Incorrect desc")
- D CHKEQ^XTMUNIT(RE(1,"TYPE"),$P(^DG(391,$P(^DPT(IFN,"TYPE"),U),0),U),"Incorrect desc")
- D CHKEQ^XTMUNIT($E(RE(1,"VETERAN"),1),$P(^DPT(IFN,"VET"),U),"Incorrect desc")
+ D:$D(^DPT(IFN,"TYPE")) CHKEQ^XTMUNIT(RE(1,"TYPE"),$P($G(^DG(391,$P($G(^DPT(IFN,"TYPE")),U),0)),U),"Incorrect desc")
+ D CHKEQ^XTMUNIT($E(RE(1,"VETERAN"),1),$P($G(^DPT(IFN,"VET")),U),"Incorrect desc")
  Q
 LSTTPATS ;
  S %=$$LSTTPATS^DGPMAPI7(.RE,NAME,,) S DATE1=$$FMADD^XLFDT($$NOW^XLFDT(),-3)_U
@@ -93,7 +93,7 @@ LSTTPATS ;
  S ADM("FDEXC")=1,ADM("SHDIAG")="Transfer Admit diagnosis",ADM("WARD")=WARD1,ADM("FTSPEC")="1^"
  S ADM("ATNDPHY")=DUZ,ADM("ROOMBED")=BED1 M PAR=ADM
  S %=$$ADMIT^DGPMAPI1(.RT,.ADM) S AFN=+RT
- S %=$$LSTTPATS^DGPMAPI7(.RE,,,) S IFN=+DFN
+ S %=$$LSTTPATS^DGPMAPI7(.RE,.NAME,,) S IFN=+DFN
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
  D CHKEQ^XTMUNIT(RE(1,"ID"),+IFN,"Incorrect IFN")
  D CHKEQ^XTMUNIT(RE(1,"NAME"),$P(^DPT(IFN,0),U),"Incorrect name")
@@ -139,8 +139,8 @@ GETPAT ;
  S %=$$DISCH^DGPMAPI3(.RE,.PAR) S DMFN=+RE,DMDATE=PAR("DATE")
  S %=$$GETPAT^DGPMAPI8(.RE,DFN)
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
- D CHKEQ^XTMUNIT($P(RE("NAME"),U),$P(^DPT(IFN,0),U),"Incorrect name")
- D CHKEQ^XTMUNIT(+RE("DOB"),$P(^DPT(IFN,0),U,3),"Incorrect desc")
+ D CHKEQ^XTMUNIT($P(RE("NAME"),U),$P(^DPT(+DFN,0),U),"Incorrect name")
+ D CHKEQ^XTMUNIT(+RE("DOB"),$P(^DPT(+DFN,0),U,3),"Incorrect desc")
  Q
 GETMVT ;
  S %=$$GETMVT^DGPMAPI8(.RE,DMFN)

@@ -1,4 +1,4 @@
-ZZDGPMAPI2 ;Unit Tests - Clinic API; 2/20/2013
+ZZDGPMAPI2 ;Unit Tests - Transfer API; 4/8/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI2")
@@ -18,48 +18,45 @@ SHUTDOWN ;
 TRANSF ;
  N PAR,RTN
  ;Invalid patient
- S ADM("PATIENT")=+DFN,ADM("TYPE")=1,ADM("ADMREG")=1,ADM("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-3)_U
+ S ADM("PATIENT")=+DFN,ADM("TYPE")=1,ADM("ADMREG")=1,ADM("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-5,-5)_U
  S ADM("FDEXC")=1,ADM("SHDIAG")="Transfer Admit diagnosis",ADM("WARD")=WARD1,ADM("FTSPEC")="1^"
  S ADM("ATNDPHY")=DUZ_U ;,ADM("ROOMBED")=BED1_U
  S %=$$ADMIT^DGPMAPI1(.RT,.ADM)
  S AFN=+RT
  S RTN="S %=$$TRANSF^DGPMAPI2(.RE,.PAR)"
- ;Invalid date
- X RTN
- D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM DATE")
- D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM")
- D CHKEQ^XTMUNIT($P(RE(0),U,2)["PARAM('DATE')",1,"Expected error: INVPARM DATE")
+ ;Check date
+ D CHKDT^ZZDGPMUTL(RTN,.PAR)
  ;invalid admission IFN
- S PAR("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-3)_U X RTN
+ S PAR("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-5,-5)_U X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM ADMIFN")
  D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM")
  D CHKEQ^XTMUNIT($P(RE(0),U,2)["PARAM('ADMIFN')",1,"Expected error: INVPARM ADMIFN")
- ;not befor admission
- S PAR("ADMIFN")=AFN,PAR("DATE")=(+PAR("DATE"))-1 X RTN
+ ;not before admission
+ S PAR("ADMIFN")=AFN,PAR("DATE")=$$FMADD^XLFDT(+PAR("DATE"),-1) X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM DATE")
  D CHKEQ^XTMUNIT($P(RE(0),U),"TRANBADM","Expected error: TRANBADM")
- ;not befor admission
- S PAR("ADMIFN")=AFN,PAR("DATE")=(+PAR("DATE"))+1 X RTN
+ ;time used
+ S PAR("ADMIFN")=AFN,PAR("DATE")=$$FMADD^XLFDT(+PAR("DATE"),+1) X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: TIMEUSD")
  D CHKEQ^XTMUNIT($P(RE(0),U),"TIMEUSD","Expected error: TIMEUSD")
  ;Invalid transfer type
  S PAR("TYPE")="1^",PAR("DATE")=(+PAR("DATE"))+1 ;Direct admission
- D CHKTYPE^ZZDGPMAPI1(RTN,.PAR)
+ D CHKTYPE^ZZDGPMSE(RTN,.PAR)
  S PAR("TYPE")="1^" X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: ADMINVAT")
  D CHKEQ^XTMUNIT($P(RE(0),U),"TRAINVAT","Expected error: TRAINVAT")
  D CHKEQ^XTMUNIT($P(RE(0),U,2)["DIRECT",1,"Expected error: TRAINVAT")
  S PAR("TYPE")="11^"
  ;Invalid ward
- D CHKWARD^ZZDGPMAPI1(RTN,.PAR,WARD1)
+ D CHKWARD^ZZDGPMSE(RTN,.PAR,WARD1)
  ;Invalid room-bed
- D CHKBED^ZZDGPMAPI1(RTN,.PAR,BED1,,2,WARD1)
+ D CHKBED^ZZDGPMSE(RTN,.PAR,BED1,,2,WARD1)
  ;Invalid facility treating specialty
- D CHKFTS^ZZDGPMAPI1(RTN,.PAR,,1)
+ D CHKFTS^ZZDGPMSE(RTN,.PAR,,1)
  ;Invalid attender
- D CHKATD^ZZDGPMAPI1(RTN,.PAR,,1)
+ D CHKATD^ZZDGPMSE(RTN,.PAR,,1)
  ;Invalid primary physician
- D CHKPRYM^ZZDGPMAPI1(RTN,.PAR)
+ D CHKPRYM^ZZDGPMSE(RTN,.PAR)
  ;Transfer
  K PAR("PRYMPHY")
  S %=$$TRANSF^DGPMAPI2(.RE,.PAR)
@@ -80,25 +77,27 @@ UPDTRA ;
  S %=$$UPDTRA^DGPMAPI2(.RE,.PAR,+TFN+100)
  D CHKEQ^XTMUNIT(RE,0,"Expected error: TRANFND")
  D CHKEQ^XTMUNIT($P(RE(0),U),"TRANFND","Expected error: TRANFND")
+ ;Check date
+ D CHKDT^ZZDGPMUTL(RTN,.PAR,1)
  ;invalid date
- S PAR("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-4)_U X RTN
+ S PAR("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-6)_U X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM DATE")
  D CHKEQ^XTMUNIT($P(RE(0),U),"TRANBADM","Expected error: TRANBADM")
  ;Invalid admission type
  S PAR("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-1)_U
  S PAR("TYPE")="1^" ;Direct admission
- D CHKTYPE^ZZDGPMAPI1(RTN,.PAR,1)
+ D CHKTYPE^ZZDGPMSE(RTN,.PAR,1)
  S PAR("TYPE")="11^"
  ;Invalid ward
- D CHKWARD^ZZDGPMAPI1(RTN,.PAR,WARD2,1)
+ D CHKWARD^ZZDGPMSE(RTN,.PAR,WARD2,1)
  ;Invalid room-bed
- ;D CHKBED^ZZDGPMAPI1(RTN,.PAR,BED2,1,3,WARD2)
+ ;D CHKBED^ZZDGPMSE(RTN,.PAR,BED2,1,3,WARD2)
  ;Invalid facility treating specialty
- D CHKFTS^ZZDGPMAPI1(RTN,.PAR,,1)
+ D CHKFTS^ZZDGPMSE(RTN,.PAR,1,1)
  ;Invalid attender
- D CHKATD^ZZDGPMAPI1(RTN,.PAR,1)
+ D CHKATD^ZZDGPMSE(RTN,.PAR,1)
  ;Invalid primary physician
- D CHKPRYM^ZZDGPMAPI1(RTN,.PAR)
+ D CHKPRYM^ZZDGPMSE(RTN,.PAR)
  X RTN
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
  D CHKEQ^XTMUNIT($P(^DGPM(+TFN,0),U),+PAR("DATE"),"Unexpected error: "_$G(RE(0)))
@@ -126,13 +125,13 @@ TOASIH ;
  S PAR("FDEXC")="0^"
  D CHKAREG^ZZDGPMAPI1(RTN,.PAR)
  ;Invalid short diag
- D CHKDIAG^ZZDGPMAPI1(RTN,.PAR,"To asih diagnosis")
+ D CHKDIAG^ZZDGPMSE(RTN,.PAR,"To asih diagnosis")
  ;Invalid facility treating specialty
- D CHKFTS^ZZDGPMAPI1(RTN,.PAR)
+ D CHKFTS^ZZDGPMSE(RTN,.PAR)
  ;Invalid attender
- D CHKATD^ZZDGPMAPI1(RTN,.PAR)
+ D CHKATD^ZZDGPMSE(RTN,.PAR)
  ;Invalid primary physician
- D CHKPRYM^ZZDGPMAPI1(RTN,.PAR)
+ D CHKPRYM^ZZDGPMSE(RTN,.PAR)
  ;Invalid source of admission
  D CHKASRC^ZZDGPMAPI1(RTN,.PAR)
  ;Invalid ward service
@@ -142,22 +141,22 @@ TOASIH ;
  S $P(^DIC(42,+WARD2,0),U,3)="M"
  ;Invalid ward
  K PAR("WARD")
- D CHKWARD^ZZDGPMAPI1(RTN,.PAR,WARD2)
+ D CHKWARD^ZZDGPMSE(RTN,.PAR,WARD2)
  ;Invalid room-bed
- ;D CHKBED^ZZDGPMAPI1(RTN,.PAR,BED2,,2,WARD2,1)
+ ;D CHKBED^ZZDGPMSE(RTN,.PAR,BED2,,2,WARD2,1)
  ;transfer
  X RTN
- D CHKEQ^XTMUNIT(RE>0,1,"Expected error: ASHWINVS")
+ D CHKEQ^XTMUNIT(RE>0,1,"Unexpected error: "_$G(RE(0)))
  ;to asih after to asih
  S PAR("DATE")=+PAR("DATE")+0.01 X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: TRAINVAT")
  D CHKEQ^XTMUNIT($P(RE(0),U),"TRAINVAT","Expected error: TRAINVAT")
  ;discharge while asih
- S %=$$GETLASTM^DGPMAPI8(.LMVT,DFN)
+ S %=$$GETLASTM^DGPMAPI8(.LMVT,+PAR("PATIENT"))
  S PAR("DATE")=+PAR("DATE")+0.02,PAR("TYPE")=24,PAR("ADMIFN")=LMVT("ADMIFN")
  S %=$$DISCH^DGPMAPI3(.RE,.PAR),DISCH=+RE
  ;Must delete discharge first
- S %=$$GETLASTM^DGPMAPI8(.LMVT,DFN)
+ S %=$$GETLASTM^DGPMAPI8(.LMVT,+PAR("PATIENT"))
  S %=$$DELADM^DGPMAPI1(.RE,LMVT("ADMIFN"))
  D CHKEQ^XTMUNIT(RE,0,"Expected error: CANMDDF")
  D CHKEQ^XTMUNIT($P(RE(0),U),"CANMDDF","Expected error: CANMDDF")
@@ -196,10 +195,11 @@ TOASIHO ;
  Q
 CHKFCTY(RTN,PAR,UPD,REQ) ;
  ;Invalid transfer facility
- X RTN
- D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM")
- D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM FCTY")
- D CHKEQ^XTMUNIT($P(RE(0),U,2)["PARAM('FCTY')",1,"Expected error: INVPARM FCTY")
+ I +$G(UPD)=0 D
+ . X RTN
+ . D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM")
+ . D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM FCTY")
+ . D CHKEQ^XTMUNIT($P(RE(0),U,2)["PARAM('FCTY')",1,"Expected error: INVPARM FCTY")
  ;transfer facility not found
  S PAR("FCTY")=($P(^DIC(4,0),U,3)+10)_U X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: TFCNFND")
