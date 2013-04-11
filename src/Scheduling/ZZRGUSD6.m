@@ -1,4 +1,4 @@
-ZZRGUSD6 ;RGI/VSL Unit Tests - Team API; 4/3/13
+ZZRGUSD6 ;RGI/VSL Unit Tests - Team API; 4/11/13
  ;;1.0;UNIT TEST;;05/28/2012;
  Q:$T(^SDMAPI1)=""
  TSTART
@@ -28,9 +28,9 @@ GETEAM ; Get team
  D CHKEQ^XTMUNIT(R,1,"Unexpected: "_$G(R(0)))
  S TM0=^SCTM(404.51,TM,0),TMH0=$G(^SCTM(404.58,TM,0))
  D CHKEQ^XTMUNIT(R("CAN ACT AS A PC TEAM?"),$$STRIP($P(TM0,U,5)_U_$S($P(TM0,U,5):"YES",1:"NO")),"Can act PC")
- D CHKEQ^XTMUNIT(R("CURRENT # OF PATIENTS"),"0^0","No of patients")
+ D CHKEQ^XTMUNIT(R("CURRENT # OF PATIENTS"),"0","No of patients")
  D CHKEQ^XTMUNIT($P(R("CURRENT STATUS"),U),$$STRIP($S('+TMH0!('$P(TMH0,U,3)):"Inactive",1:"Active")),"Current status")
- D CHKEQ^XTMUNIT(R("NAME"),$$STRIP($P(TM0,U)_U_$P(TM0,U)),"Team name")
+ D CHKEQ^XTMUNIT(R("NAME"),$$STRIP($P(TM0,U)),"Team name")
  D CHKEQ^XTMUNIT(R("TEAM PURPOSE"),$$STRIP($P(TM0,U,3)_U_$P(^SD(403.47,$P(TM0,U,3),0),U)),"Team purpose")
  D CHKEQ^XTMUNIT(R("SERVICE/DEPARTMENT"),$$STRIP($P(TM0,U,6)_U_$P(^DIC(49,$P(TM0,U,6),0),U)),"Service")
  D CHKEQ^XTMUNIT(R("INSTITUTION"),$$STRIP($P(TM0,U,7)_U_$P(^DIC(4,$P(TM0,U,7),0),U)),"Institution")
@@ -63,9 +63,9 @@ GETEAMPO ; Get team position
  D CHKEQ^XTMUNIT(R,1,"Unexpected: "_$G(R(0)))
  S TM0=^SCTM(404.57,TM,0),TMH0=$G(^SCTM(404.59,TM,0))
  D CHKEQ^XTMUNIT(R("CAN ACT AS PRECEPTOR?"),$S($P(TM0,U,12):$P(TM0,U,12)_U_$S($P(TM0,U,12):"YES",1:"NO"),1:""),"Can act PC")
- D CHKEQ^XTMUNIT(R("CURRENT # OF PATIENTS"),"0^0","No of patients")
+ D CHKEQ^XTMUNIT(R("CURRENT # OF PATIENTS"),"0","No of patients")
  D CHKEQ^XTMUNIT($P(R("CURRENT STATUS"),U),$S('+TMH0!('$P(TMH0,U,3)):"Inactive",1:"Active"),"Current status")
- D CHKEQ^XTMUNIT(R("POSITION"),$P(TM0,U)_U_$P(TM0,U),"Name")
+ D CHKEQ^XTMUNIT(R("POSITION"),$P(TM0,U),"Name")
  D CHKEQ^XTMUNIT(R("TEAM"),$P(TM0,U,2)_U_$P(^SCTM(404.51,$P(TM0,U,2),0),U),"Team")
  D CHKEQ^XTMUNIT(R("STANDARD ROLE NAME"),$P(TM0,U,3)_U_$P(^SD(403.46,$P(TM0,U,3),0),U),"Role name")
  D CHKEQ^XTMUNIT(R("POSSIBLE PRIMARY PRACTITIONER?"),$S($P(TM0,U,4)]"":$P(TM0,U,4)_U_$S($P(TM0,U,4):"YES",1:"NO"),1:""),"Primary practitioner")
@@ -80,7 +80,7 @@ GETEAMPO ; Get team position
  D CHKEQ^XTMUNIT(R("CURRENT INACTIVATION DATE"),"","Inactivation date")
  S F(.05)=99,F(.06)=DUZ,F(.07)=$$DT^XLFDT(),F(.08)=DUZ,F(.09)=$$DT^XLFDT()
  S $P(^SCTM(404.51,1,0),U,5)=1
- D ACPTTP^SCAPMC21(+DFN,TPO,"F",$$DT^XLFDT(),"^TMP(""SCERR"")",1)
+ S %=$$ACPTTP^SCAPMC21(+DFN,TPO,"F",$$DT^XLFDT(),"^TMP(""SCERR"")",1)
  S %=$$GETEAMPO^SCTMAPI1(.R,TPO)
  D CHKEQ^XTMUNIT(+R("FUTURE # OF PATIENTS"),1,"Future # of patients")
  D CHKEQ^XTMUNIT(+R("FUTURE # OF PC PATIENTS"),1,"Future # of PC patients")
