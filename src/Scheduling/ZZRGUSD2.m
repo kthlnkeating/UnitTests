@@ -1,4 +1,4 @@
-ZZRGUSD2 ;Unit Tests - Clinic API; 4/3/13
+ZZRGUSD2 ;Unit Tests - Clinic API; 4/12/13
  ;;1.0;UNIT TEST;;05/28/2012;
  Q:$T(^SDMAPI1)=""
  TSTART
@@ -98,6 +98,14 @@ NOSHOW ;
  D CHKEQ^XTMUNIT($P(RE(0),U,2)["SD",1,"Expected: INVPARAM SD")
  S %=$$NOSHOW^SDMAPI2(.RE,DFN,SC,2,1)
  D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^APTNFND","Expected: APTNFND")
+ ; future appt
+ S %=$$MAKE^SDMAPI2(.RE,DFN,SC,$$FMADD^XLFDT(SD,1),TYPE,,LEN,NXT,RSN,,,,,,CONS)
+ S $P(^SC(+SC,0),U,17)="N"
+ S %=$$NOSHOW^SDMAPI2(.RE,DFN,SC,$$FMADD^XLFDT(SD,1))
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^APTNSCE","Expected: APTNSCE")
+ S $P(^SC(+SC,0),U,17)="Y"
+ S %=$$NOSHOW^SDMAPI2(.RE,DFN,SC,$$FMADD^XLFDT(SD,1))
+ D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
  Q
 CANCEL ;
  K ^DPT(+DFN,"S"),^SC(+SC,"S")
