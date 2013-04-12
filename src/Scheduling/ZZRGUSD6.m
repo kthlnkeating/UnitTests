@@ -17,6 +17,7 @@ SHUTDOWN ;
  Q
  ;
 GETEAM ; Get team
+ N R,%
  ; Invalid parameter
  S %=$$GETEAM^SCTMAPI1(.R,)
  D CHKEQ^XTMUNIT(R_U_$P(R(0),U),"0^INVPARAM","Expected: INVPARAM SCTM")
@@ -51,6 +52,7 @@ STRIP(STR) ;If STR equals '^' return ''
  Q $G(STR)
  ;
 GETEAMPO ; Get team position
+ N R,%
  ; Invalid parameter
  S %=$$GETEAMPO^SCTMAPI1(.R,)
  D CHKEQ^XTMUNIT(R_U_$P(R(0),U),"0^INVPARAM","Expected: INVPARAM SCTM")
@@ -91,10 +93,12 @@ GETEAMPO ; Get team position
  D CHKEQ^XTMUNIT(+R("CURRENT # OF PATIENTS"),1,"No of patients")
  Q
 LSTAPOSN ; Get active positions
+ N R,%
  S %=$$LSTAPOS^SCTMAPI1(.R)
  D CHKEQ^XTMUNIT(R(0),0)
  Q
 LSTAPOS ; Get active positions
+ N R,%
  S $P(^SCTM(404.57,TPO,0),U,9)=+SC,TPO0=^SCTM(404.57,TPO,0)
  S %=$$LSTAPOS^SCTMAPI1(.R)
  D CHKEQ^XTMUNIT(R(0),1)

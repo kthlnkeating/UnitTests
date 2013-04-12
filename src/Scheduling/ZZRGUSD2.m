@@ -17,6 +17,7 @@ SHUTDOWN ;
  Q
  ;
 MAKE ;
+ N RETURN,RE,R,%
  S TC=$P(^SC(+SC,0),U,7)
  S SCODE=105,$P(^SC(+SC,0),U,7)=105
  S CONS=$$ADDREQ^ZZRGUSDC(SD,DFN,SCODE)
@@ -53,7 +54,8 @@ MAKE ;
  Q
 CHECKIN ;
  ;Invalid check-in date
- S %=$$CHECKIN^SDMAPI2(.RETURN,DFN,SD,SC,"AA"),NOW=$$NOW^XLFDT()
+ N RE,RETURN,%
+ S %=$$CHECKIN^SDMAPI2(.RE,DFN,SD,SC,"AA"),NOW=$$NOW^XLFDT()
  D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^INVPARAM","Expected: INVPARAM CIDT")
  ;
  S %=$$CHECKIN^SDMAPI2(.RETURN,DFN,SD,SC),NOW=$$NOW^XLFDT()
@@ -72,6 +74,7 @@ CHECKIN ;
  D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^APTNFND","Expected: APTNFND")
  Q
 NOSHOW ;
+ N RETURN,RE,%
  S %=$$NOSHOW^SDMAPI2(.RETURN,DFN,SC,SD),NOW=$$NOW^XLFDT()
  D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
  S SC0=+DFN_"^"_+LEN_"^^"_RSN_"^^"_DUZ_"^"_DT_"^^^"
@@ -108,6 +111,7 @@ NOSHOW ;
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
  Q
 CANCEL ;
+ N RETURN,RE,%
  K ^DPT(+DFN,"S"),^SC(+SC,"S")
  S SD=$P(DT,".")_".09",SD=SD_U_$$FMTE^XLFDT(SD)
  S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SD,TYPE,,LEN,NXT,RSN,,,,,,CONS)
@@ -183,6 +187,7 @@ CANCEL ;
  S $P(^SC(+SC,0),U,7)=TC
  Q
 MAKECI ;
+ N RETURN,%
  K ^DPT(+DFN,"S"),^SC(+SC,"S")
  S ^XUSEC("SDOB",DUZ)="",^XUSEC("SDMOB",DUZ)=""
  ;future appointment cannot be checked in

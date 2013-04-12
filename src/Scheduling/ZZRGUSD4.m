@@ -17,7 +17,7 @@ SHUTDOWN ;
  Q
  ;
 MAKEUS ;
- N SDD
+ N SDD,RETURN,RE,%
  S SDD=DT_".08",SDD=SDD_U_$$FMTE^XLFDT(SDD)
  S RTN="S %=$$MAKEUS^SDMAPI2(.RETURN,.PAT,.CLN,SDD,TYPE)"
  D EXSTPAT^ZZRGUSD5(RTN),EXSTCLN^ZZRGUSD5(RTN)
@@ -48,6 +48,7 @@ MAKEUS ;
  K ^SC(+SC,"I")
  Q
 MAKECO ;
+ N RETURN,%
  K ^DPT(+DFN,"S"),^SC(+SC,"S")
  S ^XUSEC("SDOB",DUZ)="",^XUSEC("SDMOB",DUZ)=""
  ;future appointment cannot be checked out
@@ -74,6 +75,7 @@ MAKECO ;
  K ^XUSEC("SDOB",DUZ),^XUSEC("SDMOB",DUZ)
  Q
 MAKECI ;
+ N RETURN,%
  K ^DPT(+DFN,"S"),^SC(+SC,"S")
  S ^XUSEC("SDOB",DUZ)="",^XUSEC("SDMOB",DUZ)=""
  ;future appointment cannot be checked in
@@ -95,6 +97,7 @@ MAKECI ;
  Q
  ;
 CHKTYP ; Check appt type
+ N RETURN,%
  K ^DPT(+DFN,"S"),^SC(+SC,"S")
  ; Undefined type
  S SD0=$$NOW^XLFDT(),SD0=$E(SD0,1,12)+0.0001
@@ -118,6 +121,7 @@ CHKTYP ; Check appt type
  D CHKEQ^XTMUNIT(RETURN(0),"TYPINVD^Patient must have the eligibility code EMPLOYEE, COLLATERAL or SHARING AGREEMENT^1","Expected error: TYPINVD")
  Q
 CHKSTYP ; Check appt subtype
+ N RETURN,%
  D SUBTYP^ZZRGUSDC
  ; Appointment subtype not found or inactive
  S SD0=$$NOW^XLFDT(),SD0=$E(SD0,1,12)+0.0001
@@ -145,6 +149,7 @@ CHKSTYP ; Check appt subtype
  D CHKEQ^XTMUNIT(^DPT(+DFN,"S",+SDD,0),DPT0,"Invalid patient appointment - 0 node")
  Q
 LSTASTYP ;Check appt subtype
+ N RETURN,%
  S %=$$LSTASTYP^SDMAPI5(.RETURN,,,,TYPE) ; List appointment subtypes
  D CHKEQ^XTMUNIT(RETURN(0),"2^*^0^","Invalid 0 node")
  D CHKEQ^XTMUNIT(RETURN(1,"ID"),1,"Invalid appt subtype ID")
@@ -155,6 +160,7 @@ LSTASTYP ;Check appt subtype
  D CHKEQ^XTMUNIT(RETURN(2,"STATUS"),"YES","Invalid appt subtype NAME")
  Q
 MAKENA ; Request type
+ N RE,%
  S SD1=$$FMADD^XLFDT(SD,-2)
  ; Invalid scheduling request type
  S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SD1,TYPE,,LEN,,RSN,,,,,,,1)
@@ -167,6 +173,7 @@ MAKENA ; Request type
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
  Q
 MAKELAB ; LAB, EKG or X-RAY
+ N RE,%
  S SD1=$$FMADD^XLFDT(SD,1)
  ; Invalid LAB
  S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SD1,TYPE,,LEN,NXT,RSN,,"AA",,,,,1)
