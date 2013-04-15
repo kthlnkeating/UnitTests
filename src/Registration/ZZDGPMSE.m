@@ -1,4 +1,4 @@
-ZZDGPMSE ;Unit Tests - Clinic API; 4/8/13
+ZZDGPMSE ;Unit Tests - Clinic API; 4/15/13
  ;;1.0;UNIT TEST;;05/28/2012;
 ADDCLN(NAME) ; Add new clinic
  N IEN
@@ -122,17 +122,18 @@ UPD(RETURN,FILE,IFN,PARAMS) ; Update ward
  S RETURN=IFN
  Q
  ;
-CHKPAT(RTN,PAR) ;
+CHKPAT(RTN,PAR,PNAME) ;
  ;Invalid patient param
  X RTN
+ S:'$D(PNAME) PNAME="PARAM(""PATIENT"")"
  D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM")
  D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM PATIENT")
  D CHKEQ^XTMUNIT($P(RE(0),U,2)["PARAM('PATIENT')",1,"Expected error: INVPARM PATIENT")
  ;patient not found
- S PAR("PATIENT")=(DFN+1)_U X RTN
+ S @PNAME=(DFN+1)_U X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: PATNFND")
  D CHKEQ^XTMUNIT($P(RE(0),U),"PATNFND","Expected error: PATNFND")
- S PAR("PATIENT")=DFN
+ S @PNAME=DFN
  Q
 CHKTYPE(RTN,PAR,UPD) ;
  ;Invalid movement type

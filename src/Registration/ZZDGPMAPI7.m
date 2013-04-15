@@ -1,4 +1,4 @@
-ZZDGPMAPI7 ;Unit Tests - Clinic API; 4/2/13
+ZZDGPMAPI7 ;Unit Tests - Clinic API; 4/15/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI7")
@@ -16,6 +16,9 @@ SHUTDOWN ;
  Q
  ;
 LSTPROV ;
+ S RTN="S %=$$LSTPROV^DGPMAPI7(.RE,,,,DGDT)"
+ D VALDT^ZZDGPMUTL(RTN,"DGDT")
+ ; 
  S %=$$LSTPROV^DGPMAPI7(.RE,$P(^VA(200,+DUZ,0),U),,,$$NOW^XLFDT())
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
  D CHKEQ^XTMUNIT(RE(1,"ID"),+DUZ,"Incorrect IFN")
@@ -32,6 +35,8 @@ LSTADREG ;
  D CHKEQ^XTMUNIT(RE(1,"CFR"),$P(^DIC(43.4,IFN,0),U,3),"Incorrect CFR")
  Q
 LSTFTS ;
+ S RTN="S %=$$LSTFTS^DGPMAPI7(.RE,,,,DGDT)"
+ D VALDT^ZZDGPMUTL(RTN,"DGDT")
  S IFN=$P(^DIC(45.7,0),U,3),NAME=$P(^DIC(45.7,IFN,0),U)
  S %=$$LSTFTS^DGPMAPI7(.RE,NAME,,,$$NOW^XLFDT()) ; Return facility treating specialties
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
@@ -53,8 +58,6 @@ LSTFCTY ;
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
  D CHKEQ^XTMUNIT(RE(1,"ID"),IFN,"Incorrect IFN")
  D CHKEQ^XTMUNIT(RE(1,"NAME"),$P(^DIC(4,IFN,0),U),"Incorrect name")
- ;D CHKEQ^XTMUNIT(RE(1,"STATE"),$P(^DIC(5,$P(^DIC(4,IFN,0),U,2),0),U),"Incorrect state")
- ;D CHKEQ^XTMUNIT(RE(1,"TYPE"),$P(^DIC(4.1,$P(^DIC(4,IFN,3),U),0),U),"Incorrect type")
  Q
 LSTWARD ;
  S IFN=$P(^DIC(42,0),U,3),NAME=$P(^DIC(42,IFN,0),U)
@@ -160,7 +163,7 @@ GETMVTT ;
  D CHKEQ^XTMUNIT($P(RE("NAME"),U),$P(^DG(405.1,IFN,0),U),"Incorrect name")
  D CHKEQ^XTMUNIT(+RE("STAT"),$P(^DG(405.1,IFN,0),U,4),"Incorrect status")
  D CHKEQ^XTMUNIT(+RE("TTYPE"),$P(^DG(405.1,IFN,0),U,2),"Incorrect ttype")
- D CHKEQ^XTMUNIT(+RE("ASKSPEC"),+$P(^DG(405.1,IFN,0),U),"Incorrect askspec")
+ D CHKEQ^XTMUNIT(+RE("ASKSPEC"),+$P(^DG(405.1,IFN,0),U,5),"Incorrect askspec")
  Q
 GETMASMT ;
  S IFN=$P(^DG(405.2,0),U,3),NAME=$P(^DG(405.2,IFN,0),U)
