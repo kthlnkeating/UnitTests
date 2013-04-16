@@ -1,4 +1,4 @@
-ZZRGUSD5 ;RGI/CBR Unit Tests - Vocabulary API; 4/3/13
+ZZRGUSD5 ;RGI/CBR Unit Tests - Vocabulary API; 4/16/13
  ;;1.0;UNIT TEST;;05/28/2012;
  Q:$T(^SDMAPI1)=""
  TSTART
@@ -7,7 +7,7 @@ ZZRGUSD5 ;RGI/CBR Unit Tests - Vocabulary API; 4/3/13
  Q
 STARTUP ;
  S DTIME=500,DUZ=1,U="^"
- D LOGON^ZZRGUTCM
+ D LOGON^ZZRGUSDC
  S DT=$$DT^XLFDT()
  D SETUP^ZZRGUSDC()
  Q

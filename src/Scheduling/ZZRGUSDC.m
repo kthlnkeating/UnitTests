@@ -1,5 +1,11 @@
-ZZRGUSDC ;Unit Tests - Clinic API; 4/3/13
+ZZRGUSDC ;Unit Tests - Clinic API; 4/16/13
  ;;1.0;UNIT TEST;;05/28/2012;
+LOGON ;
+ S DUZ=$$CHECKAV^XUSRB("fakedoc1;1Doc!@#$")
+ D DUZ^XUS1A
+ S GMPVAMC=DUZ(2)
+ Q
+ ;
 ADDCLN(NAME) ; Add new clinic
  N IEN
  S IEN=$P(^SC(0),U,3)+1
