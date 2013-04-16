@@ -48,7 +48,7 @@ MAKEUS ;
  K ^SC(+SC,"I")
  Q
 MAKECO ;
- N RETURN,%
+ N RETURN,%,COD
  K ^DPT(+DFN,"S"),^SC(+SC,"S")
  S ^XUSEC("SDOB",DUZ)="",^XUSEC("SDMOB",DUZ)=""
  ;future appointment cannot be checked out
@@ -67,11 +67,11 @@ MAKECO ;
  D CHKEQ^XTMUNIT($G(RETURN("COD")),$E(CIO("DT"),1,12),"Incorrect check out date")
  ;appt checked out
  K ^DPT(+DFN,"S"),^SC(+SC,"S")
- S SD0=$E($$NOW^XLFDT(),1,10)
+ S COD=$$NOW^XLFDT(),SD0=+$E(COD,1,10),COD=+$E(COD,1,12)
  S CIO="CO" ;,CIO("DT")=$$NOW^XLFDT()
  S %=$$MAKEUS^SDMAPI2(.RETURN,DFN,SC,SD0,TYPE,,.CIO)
  D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
- D CHKEQ^XTMUNIT($G(RETURN("COD")),$E($$NOW^XLFDT(),1,12),"Incorrect check out date")
+ D CHKEQ^XTMUNIT($G(RETURN("COD")),COD,"Incorrect check out date")
  K ^XUSEC("SDOB",DUZ),^XUSEC("SDMOB",DUZ)
  Q
 MAKECI ;
@@ -79,15 +79,15 @@ MAKECI ;
  K ^DPT(+DFN,"S"),^SC(+SC,"S")
  S ^XUSEC("SDOB",DUZ)="",^XUSEC("SDMOB",DUZ)=""
  ;future appointment cannot be checked in
- S SD0=$$NOW^XLFDT(),SD0=$E(SD0,1,12)+0.0001,CIO="CI"
+ S SD0=+$$FMADD^XLFDT($$NOW^XLFDT(),0,0,10),SD0=+$E(SD0,1,12),CIO="CI"
  S %=$$MAKEUS^SDMAPI2(.RETURN,DFN,SC,SD0,TYPE,,.CIO)
  D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
  D CHKEQ^XTMUNIT($G(RETURN("CI")),"","Future Appt cannot be checked in.")
  ;appt checked in
- S SDPAST=$J($$NOW^XLFDT(),2,4)
+ S SDPAST=+$E($$NOW^XLFDT(),1,12)
  S %=$$MAKEUS^SDMAPI2(.RETURN,DFN,SC,SDPAST,TYPE,,.CIO)
  D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
- D CHKEQ^XTMUNIT($G(RETURN("CI")),+SDPAST,"Incorrect check in date")
+ D CHKEQ^XTMUNIT(+$G(RETURN("CI")),+SDPAST,"Incorrect check in date")
  ;past appointment cannot be checked in
  S SDPAST=$E($$FMADD^XLFDT($$NOW^XLFDT(),-1),1,10)
  S %=$$MAKEUS^SDMAPI2(.RETURN,DFN,SC,SDPAST,TYPE,,.CIO)

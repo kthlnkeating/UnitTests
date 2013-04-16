@@ -141,7 +141,7 @@ GETAPTS ;
  D CHKEQ^XTMUNIT($D(RE("APT",+SD)),10,"Missing present appt")
  D CHKEQ^XTMUNIT($D(RE("APT",+FDT)),0,"Not future appt")
  ; existing appt
- S %=$$GETAPTS^SDMAPI1(.RE,DFN,+SD) ZW RE
+ S %=$$GETAPTS^SDMAPI1(.RE,DFN,+SD)
  D CHKEQ^XTMUNIT(RE,1)
  D CHKEQ^XTMUNIT(RE("APT",+SD,"OTHER"),RSN,"Reason field")
  D CHKEQ^XTMUNIT(RE("APT",+SD,"LENGTH"),+LEN,"Length field")
