@@ -1,4 +1,4 @@
-ZZDGPMAPI4 ;Unit Tests - Check-in API; 4/2/13
+ZZDGPMAPI4 ;Unit Tests - Check-in API; 4/18/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI4")
@@ -49,9 +49,8 @@ LDGIN ; Check-in patient
  S PA("DATE")=$$FMADD^XLFDT(+ADM("DATE"),-1),%=$$LDGIN^DGPMAPI4(.R,.PA)
  D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^ADMMBBNM","Expected error: ADMMBBNM")
  ; Type
- S PA("DATE")=$$NOW^XLFDT(),PA("TYPE")="^"
+ S PA("DATE")=$$NOW^XLFDT(),PA("TYPE")="43^",PA("INVTYPE")="1"
  D CHKTYPE^ZZDGPMSE(RTN,.PA)
- S PA("TYPE")="43^"
  ; Invalid short diag
  D CHKDIAG^ZZDGPMSE(RTN,.PA,"","LDGCOMM") S PA("LDGCOMM")="Check-in diagnosis"
  ; Invalid ward
@@ -103,9 +102,8 @@ UPDLDGIN ; Update check-in lodger
  D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^ADMMBBNM","Expected error: ADMMBBNM")
  ; Invalid type
  S PA("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),,-1)_U
- S PA("TYPE")="43^" ;Direct admission
+ S PA("TYPE")="44^",PA("INVTYPE")="1" ;Direct admission
  D CHKTYPE^ZZDGPMSE(RTN,.PA,1) K PA("TYPE")
- ;S PA("TYPE")="44^"
  ; Invalid short diag
  D CHKDIAG^ZZDGPMSE(RTN,.PA,"","LDGCOMM") S PA("LDGCOMM")="Update Check-in diagnosis"
  ; Invalid ward
@@ -137,7 +135,7 @@ UPDLDGIN ; Update check-in lodger
  S %=$$LDGIN^DGPMAPI4(.R,.PA)
  D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^LDGPALD","Expected error: RSNNFND")
  S %=$$DELLDGIN^DGPMAPI4(.R,AFN),%=$$LDGIN^DGPMAPI4(.R,.PA),AFN=R
- S PA("TYPE")="43^" K PA("WARD"),PA("ROOMBED")
+ S PA("TYPE")="43^",PA("INVTYPE")="1" K PA("WARD"),PA("ROOMBED")
  S %=$$UPDLDGIN^DGPMAPI4(.R,.PA,AFN)
  D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^WRDNFND","Expected error: WRDNFND")
  S PA("WARD")=WARD1,PA("ROOMBED")=BED1

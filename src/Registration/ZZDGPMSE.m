@@ -1,4 +1,4 @@
-ZZDGPMSE ;Unit Tests - Clinic API; 4/15/13
+ZZDGPMSE ;Unit Tests - Clinic API; 4/18/13
  ;;1.0;UNIT TEST;;05/28/2012;
 ADDCLN(NAME) ; Add new clinic
  N IEN
@@ -124,16 +124,17 @@ UPD(RETURN,FILE,IFN,PARAMS) ; Update ward
  ;
 CHKPAT(RTN,PAR,PNAME) ;
  ;Invalid patient param
- X RTN
- S:'$D(PNAME) PNAME="PARAM(""PATIENT"")"
+ N PN X RTN
+ S PN=$S('$D(PNAME):"PARAM('PATIENT')",1:PNAME)
  D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM")
  D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM PATIENT")
- D CHKEQ^XTMUNIT($P(RE(0),U,2)["PARAM('PATIENT')",1,"Expected error: INVPARM PATIENT")
+ D CHKEQ^XTMUNIT($P(RE(0),U,2)[PN,1,"Expected error: INVPARM PATIENT")
  ;patient not found
- S @PNAME=(DFN+1)_U X RTN
+ S:'$D(PNAME) PN="PAR(""PATIENT"")"
+ S @PN=(DFN+1)_U X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: PATNFND")
  D CHKEQ^XTMUNIT($P(RE(0),U),"PATNFND","Expected error: PATNFND")
- S @PNAME=DFN
+ S @PN=DFN
  Q
 CHKTYPE(RTN,PAR,UPD) ;
  ;Invalid movement type
@@ -148,8 +149,13 @@ CHKTYPE(RTN,PAR,UPD) ;
  S PAR("TYPE")=($P(^DG(405.1,0),U,3)+1)_U X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: MVTTNFND")
  D CHKEQ^XTMUNIT($P(RE(0),U),"MVTTNFND","Expected error: MVTTNFND")
+ ;invalid movement type
+ S PAR("TYPE")=PAR("INVTYPE") X RTN
+ D CHKEQ^XTMUNIT(RE,0,"Expected error: MVTTINAC")
+ D CHKEQ^XTMUNIT($P(RE(0),U),"ADMINVAT","Expected error: ADMINVAT")
+ D CHKEQ^XTMUNIT($P(RE(0),U,2)[$P(^DG(405.1,+PAR("TYPE"),0),U,1),1,"Expected error: ADMINVAT")
  ;inactive movement type
- S PAR("TYPE")=TMP+1
+ S PAR("TYPE")=TMP
  S $P(^DG(405.1,+PAR("TYPE"),0),U,4)=0 X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: MVTTINAC")
  D CHKEQ^XTMUNIT($P(RE(0),U),"MVTTINAC","Expected error: MVTTINAC")

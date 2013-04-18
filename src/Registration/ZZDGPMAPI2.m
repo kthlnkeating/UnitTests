@@ -1,4 +1,4 @@
-ZZDGPMAPI2 ;Unit Tests - Transfer API; 4/8/13
+ZZDGPMAPI2 ;Unit Tests - Transfer API; 4/18/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI2")
@@ -40,13 +40,8 @@ TRANSF ;
  D CHKEQ^XTMUNIT(RE,0,"Expected error: TIMEUSD")
  D CHKEQ^XTMUNIT($P(RE(0),U),"TIMEUSD","Expected error: TIMEUSD")
  ;Invalid transfer type
- S PAR("TYPE")="1^",PAR("DATE")=(+PAR("DATE"))+1 ;Direct admission
+ S PAR("TYPE")="11^",PAR("INVTYPE")="1",PAR("DATE")=(+PAR("DATE"))+1 ;Direct admission
  D CHKTYPE^ZZDGPMSE(RTN,.PAR)
- S PAR("TYPE")="1^" X RTN
- D CHKEQ^XTMUNIT(RE,0,"Expected error: ADMINVAT")
- D CHKEQ^XTMUNIT($P(RE(0),U),"TRAINVAT","Expected error: TRAINVAT")
- D CHKEQ^XTMUNIT($P(RE(0),U,2)["DIRECT",1,"Expected error: TRAINVAT")
- S PAR("TYPE")="11^"
  ;Invalid ward
  D CHKWARD^ZZDGPMSE(RTN,.PAR,WARD1)
  ;Invalid room-bed
@@ -58,7 +53,7 @@ TRANSF ;
  ;Invalid primary physician
  D CHKPRYM^ZZDGPMSE(RTN,.PAR)
  ;Transfer
- K PAR("PRYMPHY")
+ ;K PAR("PRYMPHY")
  S %=$$TRANSF^DGPMAPI2(.RE,.PAR)
  S TFN=RE
  ;check valid data
@@ -83,15 +78,14 @@ UPDTRA ;
  S PAR("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-6)_U X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM DATE")
  D CHKEQ^XTMUNIT($P(RE(0),U),"TRANBADM","Expected error: TRANBADM")
- ;Invalid admission type
+ ;Invalid transfer type
  S PAR("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-1)_U
- S PAR("TYPE")="1^" ;Direct admission
- D CHKTYPE^ZZDGPMSE(RTN,.PAR,1)
  S PAR("TYPE")="11^"
  ;Invalid ward
  D CHKWARD^ZZDGPMSE(RTN,.PAR,WARD2,1)
  ;Invalid room-bed
- ;D CHKBED^ZZDGPMSE(RTN,.PAR,BED2,1,3,WARD2)
+ S PARA(.01)=+WARD2 D ADDBASW^ZZDGPMSE(,+BED2,.PARA)
+ D CHKBED^ZZDGPMSE(RTN,.PAR,BED2,1,3,WARD2)
  ;Invalid facility treating specialty
  D CHKFTS^ZZDGPMSE(RTN,.PAR,1,1)
  ;Invalid attender
@@ -149,8 +143,8 @@ TOASIH ;
  D CHKEQ^XTMUNIT(RE>0,1,"Unexpected error: "_$G(RE(0)))
  ;to asih after to asih
  S PAR("DATE")=+PAR("DATE")+0.01 X RTN
- D CHKEQ^XTMUNIT(RE,0,"Expected error: TRAINVAT")
- D CHKEQ^XTMUNIT($P(RE(0),U),"TRAINVAT","Expected error: TRAINVAT")
+ D CHKEQ^XTMUNIT(RE,0,"Expected error: ADMINVAT")
+ D CHKEQ^XTMUNIT($P(RE(0),U),"ADMINVAT","Expected error: ADMINVAT")
  ;discharge while asih
  S %=$$GETLASTM^DGPMAPI8(.LMVT,+PAR("PATIENT"))
  S PAR("DATE")=+PAR("DATE")+0.02,PAR("TYPE")=24,PAR("ADMIFN")=LMVT("ADMIFN")
@@ -219,8 +213,8 @@ TOABS ;
  D CHKEQ^XTMUNIT(+RE>0,1,"Expected error: INVPARM")
  ;invalid transfer type
  S PAR("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-1,1)_U,PAR("TYPE")=18 X RTN
- D CHKEQ^XTMUNIT(RE,0,"Expected error: TRAINVAT")
- D CHKEQ^XTMUNIT($P(RE(0),U),"TRAINVAT","Expected error: TRAINVAT")
+ D CHKEQ^XTMUNIT(RE,0,"Expected error: ADMINVAT")
+ D CHKEQ^XTMUNIT($P(RE(0),U),"ADMINVAT","Expected error: ADMINVAT")
  ;from absence
  S PAR("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-1,1)_U,PAR("TYPE")=14 X RTN S TFN2=+RE
  D CHKEQ^XTMUNIT(RE>0,1,"Unexpected error: "_$G(RE(0)))

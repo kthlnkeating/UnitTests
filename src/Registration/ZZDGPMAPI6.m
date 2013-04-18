@@ -1,4 +1,4 @@
-ZZDGPMAPI6 ;Unit Tests - Check-in API; 4/2/13
+ZZDGPMAPI6 ;Unit Tests - Check-in API; 4/18/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI6")
@@ -18,13 +18,20 @@ SHUTDOWN ;
 ADM(ADM,DATE) ;
  S ADM("PATIENT")=+DFN,ADM("TYPE")=1,ADM("ADMREG")=1,ADM("DATE")=DATE
  S ADM("FDEXC")=1,ADM("SHDIAG")="Admit diagnosis",ADM("WARD")=WARD1,ADM("FTSPEC")="1^"
- S ADM("ATNDPHY")=DUZ_U ;,ADM("ROOMBED")=BED1_U
- S %=$$ADMIT^DGPMAPI1(.RT,.ADM),%=$$GETADM^DGPMAPI8(.ADM,RT)
+ S ADM("ATNDPHY")=DUZ_U,ADM("ROOMBED")=BED1_U,ADM("ADMSCC")="1^",ADM("ADMSRC")="1D^"
+ S PARA(.01)=+WARD1 D ADDBASW^ZZDGPMSE(,+BED1,.PARA)
+ S %=$$ADMIT^DGPMAPI1(.RT,.ADM)
  Q RT
 DISCH(AIFN,DATE) ;
  S DCH("ADMIFN")=AIFN,DCH("TYPE")=24,DCH("DATE")=DATE
  S %=$$DISCH^DGPMAPI3(.RR,.DCH)
- Q
+ Q RR
+TRA(AFN,DATE)
+ S PAR("ADMIFN")=AFN,PAR("ATNDPHY")=DUZ,PAR("DATE")=DATE,PAR("FTSPEC")="2^"
+ S PAR("PATIENT")=DFN,PAR("PRYMPHY")=DUZ,PAR("ROOMBED")=BED2,PAR("TYPE")="11^",PAR("WARD")=WARD1
+ S PARA(.01)=+WARD1 D ADDBASW^ZZDGPMSE(,+BED2,.PARA)
+ S %=$$TRANSF^DGPMAPI2(.RT,.PAR)
+ Q RT
 FTS ; TS transfer
  S ADMDT=$$FMADD^XLFDT($$NOW^XLFDT(),,-3)
  S AFN=$$ADM(.ADM,ADMDT) K PAR,PA
@@ -60,44 +67,42 @@ FTS ; TS transfer
  Q
 PROVCHG ; Provider change
  K PA
- S RTN="S %=$$FTS^DGPMAPI6(.RE,.PA)"
+ S RTN="S %=$$PROVCH^DGPMAPI6(.RE,.PA)"
  ; Check date
  D CHKDT^ZZDGPMUTL(RTN,.PA)
  ; Invalid admission IFN
- S PA("DATE")=$$FMADD^XLFDT(ADMDT,,1.3),%=$$FTS^DGPMAPI6(.R,.PA)
+ S PA("DATE")=$$FMADD^XLFDT(ADMDT,,1.3),%=$$PROVCH^DGPMAPI6(.R,.PA)
  D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^INVPARM","Expected error: INVPARM")
  D CHKEQ^XTMUNIT($G(R(0))["PARAM('ADMIFN')",1,"Invalid admission parameter")
  S PA("ADMIFN")=AFN_U
  ; Invalid attender
- S PA("DGPMPC")=1
  D CHKATD^ZZDGPMSE(RTN,.PA)
  ; Invalid primary physician
  D CHKPRYM^ZZDGPMSE(RTN,.PA)
- ; Invalid provider change param
- S PA("DGPMPC")="A",%=$$FTS^DGPMAPI6(.R,.PA)
- D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^INVPARM","Expected error: INVPARM")
- D CHKEQ^XTMUNIT($G(R(0))["PARAM('DGPMPC')",1,"Invalid provider change parameter")
  ; Ok
- S PA("DGPMPC")="1",%=$$FTS^DGPMAPI6(.R,.PA),PCFN=R
+ S %=$$PROVCH^DGPMAPI6(.R,.PA),PCFN=R
  S CI0=+PA("DATE")_"^6^"_+PA("PATIENT")_"^42^^"
  S CI0=CI0_"^^"_+PA("PRYMPHY")_"^"_+PA("FTSPEC")_"^^^^^"_+AFN_"^^^^20^"_+PA("ATNDPHY")_"^^^0"
  D CHKEQ^XTMUNIT(CI0,^DGPM(+R,0),"Incorrect movement")
  Q
 UPDFTSE ; Update TS transfer
+ S RTN="S %=$$UPDFTS^DGPMAPI6(.RE,.PA,TSFN)"
  S TFN=TSFN,ADGDT=$$FMADD^XLFDT(ADMDT,,1.41) K PC
  G UPD
 UPDPC ; Update provider change
+ S RTN="S %=$$UPDPC^DGPMAPI6(.RE,.PA,TSFN)"
  S TFN=PCFN,PC=1,ADGDT=$$FMADD^XLFDT(ADMDT,,1.42)
  G UPD
 UPD ;
  ; No update
- S RTN="S %=$$UPDFTSE^DGPMAPI6(.RE,.PA,TSFN)" K PA
- S %=$$UPDFTSE^DGPMAPI6(.R,.PA,TFN)
- D CHKEQ^XTMUNIT(R,1,"Unexpected error: "_$G(R(0)))
+ K PA
+ X RTN
+ D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(R(0)))
  ; Movement not found
- S %=$$UPDFTSE^DGPMAPI6(.R,.PA,TFN+100)
- D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^MVTNFND","Expected error: MVTNFND")
+ S TSFN=TSFN+1000 X RTN
+ D CHKEQ^XTMUNIT(RE_U_$P($G(RE(0)),U),"0^MVTNFND","Expected error: MVTNFND")
  ;Check date
+ S TSFN=TSFN-1000
  D CHKDT^ZZDGPMUTL(RTN,.PA,1)
  ;not before admission
  S PA("ADMIFN")=AFN_U,PA("DATE")=$$FMADD^XLFDT(ADMDT,-4) X RTN
@@ -110,17 +115,17 @@ UPD ;
  D CHKEQ^XTMUNIT(RE_U_$P($G(RE(0)),U),"0^TIMEUSD","Expected error: TIMEUSD")
  S PA("DATE")=ADGDT
  ;Check facility treating specialty
- I '$G(PC) D CHKFTS^ZZDGPMSE(RTN,.PA,1)
+ I '$G(PC) D CHKFTS^ZZDGPMSE(RTN,.PA,1) S FTSN=PA("FTSPEC")
  ; Invalid attender
  D CHKATD^ZZDGPMSE(RTN,.PA,1)
  ; Invalid primary physician
  D CHKPRYM^ZZDGPMSE(RTN,.PA)
  ; Ok
  S %=$$GETADM^DGPMAPI8(.ADMTT,AFN)
- S %=$$UPDFTSE^DGPMAPI6(.R,.PA,TFN)
+ X RTN
  S CI0=+ADGDT_"^6^"_+PA("PATIENT")_"^42^^^^"_+PA("PRYMPHY")_"^"
- S CI0=CI0_+$S($G(PC):ADMTT("FTSPEC"),1:+PA("FTSPEC"))_"^^^^^"_+AFN_"^^^^20^"_+PA("ATNDPHY")_"^^^0"
- D CHKEQ^XTMUNIT(CI0,^DGPM(+TFN,0),"Incorrect movement")
+ S CI0=CI0_+$S($G(PC):+$G(FTSN),1:+PA("FTSPEC"))_"^^^^^"_+AFN_"^^^^20^"_+PA("ATNDPHY")_"^^^0"
+ D CHKEQ^XTMUNIT(CI0,^DGPM(+TSFN,0),"Incorrect movement")
  Q
 DELFTS ; Delete TS transfer
  ; Not found
