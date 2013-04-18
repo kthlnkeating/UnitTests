@@ -1,4 +1,4 @@
-ZZDGPMAPI1 ;Unit Tests - Admission API; 4/8/13
+ZZDGPMAPI1 ;Unit Tests - Admission API; 4/18/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI1")
@@ -31,14 +31,8 @@ ADMIT ;
  ;Invalid admitting regulation
  D CHKAREG^ZZDGPMAPI1(RTN,.PAR)
  ;Invalid admission type
- S PAR("TYPE")="1^" ;Direct admission
+ S PAR("TYPE")="1^",PAR("INVTYPE")="11" ;Direct admission
  D CHKTYPE^ZZDGPMSE(RTN,.PAR)
- S PAR("TYPE")="11^"
- S %=$$ADMIT^DGPMAPI1(.RE,.PAR)
- D CHKEQ^XTMUNIT(RE,0,"Expected error: ADMINVAT")
- D CHKEQ^XTMUNIT($P(RE(0),U),"ADMINVAT","Expected error: ADMINVAT")
- D CHKEQ^XTMUNIT($P(RE(0),U,2)["INTERWARD TRANSFER",1,"Expected error: ADMINVAT")
- S PAR("TYPE")="1^"
  ;Invalid short diag
  D CHKDIAG^ZZDGPMSE(RTN,.PAR,"Update diagnosis")
  ;Invalid ward
@@ -88,11 +82,10 @@ UPDADM ;
  D CHKEQ^XTMUNIT(RE,0,"Expected error: ADMNFND")
  D CHKEQ^XTMUNIT($P(RE(0),U),"ADMNFND","Expected error: ADMNFND")
  ;Invalid admission type
- S PAR("TYPE")="1^" ;Direct admission
+ S PAR("TYPE")="2^",PAR("INVTYPE")="11" ;Direct admission
  D CHKTYPE^ZZDGPMSE(RTN,.PAR,1)
- S PAR("TYPE")="11^"
  ; invalid facility directory exclusion
- S PAR("TYPE")=2,PAR("FDEXC")=2 X RTN
+ S PAR("FDEXC")=2 X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM")
  D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM")
  ;Invalid admitting regulation
