@@ -106,7 +106,7 @@ UPDADM ;
  ;Invalid source of admission
  D CHKASRC^ZZDGPMAPI1(RTN,.PAR,1) M PART=PAR K PAR
  ;Ok
- S PART("TYPE")="2^",PART("FDEXC")="0^"
+ S PART("TYPE")="2^",PART("FDEXC")="0^",PART("PRYMPHY")="37^"
  S %=$$UPDADM^DGPMAPI1(.RE,.PART,AFN)
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
  D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U),+PART("DATE"),"Unexpected error: "_$G(RE(0)))
@@ -115,6 +115,10 @@ UPDADM ;
  D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,7),+PART("ROOMBED"),"Unexpected error: "_$G(RE(0)))
  D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,10),PART("SHDIAG"),"Unexpected error: "_$G(RE(0)))
  D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,12),+PART("ADMREG"),"Unexpected error: "_$G(RE(0)))
+ S %=$$GETADM^DGPMAPI8(.ADM,AFN)
+ D CHKEQ^XTMUNIT(+ADM("PRYMPHY"),+PART("PRYMPHY"),"Primary physician")
+ D CHKEQ^XTMUNIT(+ADM("ATNDPHY"),+PART("ATNDPHY"),"Primary physician")
+ D CHKEQ^XTMUNIT(+ADM("FTSPEC"),+PART("FTSPEC"),"Primary physician")
  ;Invalid date
  D CHKDT^ZZDGPMUTL(RTN,.PAR,1)
  S PARD("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-1)_U,PARD("TYPE")=24,PARD("ADMIFN")=AFN
