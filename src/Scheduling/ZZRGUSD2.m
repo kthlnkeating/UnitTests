@@ -198,8 +198,6 @@ MAKECI ;
  ;appt checked in
  S SDPAST=$J($$NOW^XLFDT(),2,4)
  S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SDPAST,TYPE,,LEN,NXT,RSN,"CI",,,,,CONS,1)
- ZW RETURN
- W SDPAST
  D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
  D CHKEQ^XTMUNIT($G(RETURN("CI")),+SDPAST,"Incorrect check in date")
  ;past appointment cannot be checked in
