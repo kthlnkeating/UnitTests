@@ -1,4 +1,4 @@
-ZZRGUSD4 ;Unit Tests - Clinic API; 4/16/13
+ZZRGUSD4 ;Unit Tests - Clinic API; 4/19/13
  ;;1.0;UNIT TEST;;05/28/2012;
  Q:$T(^SDMAPI1)=""
  TSTART
@@ -71,7 +71,7 @@ MAKECO ;
  S CIO="CO" ;,CIO("DT")=$$NOW^XLFDT()
  S %=$$MAKEUS^SDMAPI2(.RETURN,DFN,SC,SD0,TYPE,,.CIO)
  D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
- D CHKEQ^XTMUNIT($G(RETURN("COD")),COD,"Incorrect check out date")
+ D CHKEQ^XTMUNIT(+$G(RETURN("COD")),COD,"Incorrect check out date")
  K ^XUSEC("SDOB",DUZ),^XUSEC("SDMOB",DUZ)
  Q
 MAKECI ;
