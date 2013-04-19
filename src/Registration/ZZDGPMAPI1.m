@@ -83,37 +83,38 @@ UPDADM ;
  D CHKEQ^XTMUNIT($P(RE(0),U),"ADMNFND","Expected error: ADMNFND")
  ;Invalid admission type
  S PAR("TYPE")="2^",PAR("INVTYPE")="11" ;Direct admission
- D CHKTYPE^ZZDGPMSE(RTN,.PAR,1)
+ D CHKTYPE^ZZDGPMSE(RTN,.PAR,1) M PART=PAR K PAR
  ; invalid facility directory exclusion
- S PAR("FDEXC")=2 X RTN
+ S PAR("FDEXC")=2 X RTN K PAR
  D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM")
  D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM")
  ;Invalid admitting regulation
- S PAR("FDEXC")="0^"
- D CHKAREG^ZZDGPMAPI1(RTN,.PAR,1)
+ D CHKAREG^ZZDGPMAPI1(RTN,.PAR,1) M PART=PAR K PAR
  ;Invalid short diag
- D CHKDIAG^ZZDGPMSE(RTN,.PAR,"Update diagnosis")
+ D CHKDIAG^ZZDGPMSE(RTN,.PAR,"Update diagnosis") M PART=PAR K PAR
  ;Invalid ward
  S PAR("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-6,-6)_U
- D CHKWARD^ZZDGPMSE(RTN,.PAR,+WARD2,1)
+ D CHKWARD^ZZDGPMSE(RTN,.PAR,+WARD2,1) M PART=PAR K PAR
  ;Invalid room-bed
- D CHKBED^ZZDGPMSE(RTN,.PAR,+BED2,1,3,WARD1)
+ D CHKBED^ZZDGPMSE(RTN,.PAR,+BED2,1,3,WARD1,,PART("DATE")) M PART=PAR K PAR
  ;Invalid facility treating specialty
- D CHKFTS^ZZDGPMSE(RTN,.PAR,1)
+ D CHKFTS^ZZDGPMSE(RTN,.PAR,1,,PART("DATE")) M PART=PAR K PAR
  ;Invalid attender
- D CHKATD^ZZDGPMSE(RTN,.PAR,1)
+ D CHKATD^ZZDGPMSE(RTN,.PAR,1) M PART=PAR K PAR
  ;Invalid primary physician
- D CHKPRYM^ZZDGPMSE(RTN,.PAR)
+ D CHKPRYM^ZZDGPMSE(RTN,.PAR) M PART=PAR K PAR
  ;Invalid source of admission
- D CHKASRC^ZZDGPMAPI1(RTN,.PAR,1)
- X RTN
+ D CHKASRC^ZZDGPMAPI1(RTN,.PAR,1) M PART=PAR K PAR
+ ;Ok
+ S PART("TYPE")="2^",PART("FDEXC")="0^"
+ S %=$$UPDADM^DGPMAPI1(.RE,.PART,AFN)
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
- D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U),+PAR("DATE"),"Unexpected error: "_$G(RE(0)))
- D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,4),+PAR("TYPE"),"Unexpected error: "_$G(RE(0)))
- D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,6),+PAR("WARD"),"Unexpected error: "_$G(RE(0)))
- D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,7),+PAR("ROOMBED"),"Unexpected error: "_$G(RE(0)))
- D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,10),PAR("SHDIAG"),"Unexpected error: "_$G(RE(0)))
- D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,12),+PAR("ADMREG"),"Unexpected error: "_$G(RE(0)))
+ D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U),+PART("DATE"),"Unexpected error: "_$G(RE(0)))
+ D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,4),+PART("TYPE"),"Unexpected error: "_$G(RE(0)))
+ D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,6),+PART("WARD"),"Unexpected error: "_$G(RE(0)))
+ D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,7),+PART("ROOMBED"),"Unexpected error: "_$G(RE(0)))
+ D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,10),PART("SHDIAG"),"Unexpected error: "_$G(RE(0)))
+ D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,12),+PART("ADMREG"),"Unexpected error: "_$G(RE(0)))
  ;Invalid date
  D CHKDT^ZZDGPMUTL(RTN,.PAR,1)
  S PARD("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-1)_U,PARD("TYPE")=24,PARD("ADMIFN")=AFN
