@@ -16,11 +16,12 @@ SHUTDOWN ;
  Q
  ;
 TRANSF ;
- N PAR,RTN
+ N PAR,RTN,ADM
  ;Invalid patient
  S ADM("PATIENT")=+DFN,ADM("TYPE")=1,ADM("ADMREG")=1,ADM("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-5,-5)_U
  S ADM("FDEXC")=1,ADM("SHDIAG")="Transfer Admit diagnosis",ADM("WARD")=WARD1,ADM("FTSPEC")="1^"
- S ADM("ATNDPHY")=DUZ_U ;,ADM("ROOMBED")=BED1_U
+ S ADM("ATNDPHY")=DUZ_U,ADM("ROOMBED")=BED1
+ S PARA(.01)=+WARD1 D ADDBASW^ZZDGPMSE(,+BED1,.PARA)
  S %=$$ADMIT^DGPMAPI1(.RT,.ADM)
  S AFN=+RT
  S RTN="S %=$$TRANSF^DGPMAPI2(.RE,.PAR)"
@@ -31,12 +32,15 @@ TRANSF ;
  D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM ADMIFN")
  D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM")
  D CHKEQ^XTMUNIT($P(RE(0),U,2)["PARAM('ADMIFN')",1,"Expected error: INVPARM ADMIFN")
+ S PAR("ADMIFN")="aa",PAR("DATE")=$$FMADD^XLFDT(+PAR("DATE"),-1) X RTN
+ D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM AFN")
+ D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM")
  ;not before admission
- S PAR("ADMIFN")=AFN,PAR("DATE")=$$FMADD^XLFDT(+PAR("DATE"),-1) X RTN
+ S PAR("ADMIFN")=AFN X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM DATE")
  D CHKEQ^XTMUNIT($P(RE(0),U),"TRANBADM","Expected error: TRANBADM")
  ;time used
- S PAR("ADMIFN")=AFN,PAR("DATE")=$$FMADD^XLFDT(+PAR("DATE"),+1) X RTN
+ S PAR("DATE")=$$FMADD^XLFDT(+PAR("DATE"),+1) X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: TIMEUSD")
  D CHKEQ^XTMUNIT($P(RE(0),U),"TIMEUSD","Expected error: TIMEUSD")
  ;Invalid transfer type
@@ -45,7 +49,7 @@ TRANSF ;
  ;Invalid ward
  D CHKWARD^ZZDGPMSE(RTN,.PAR,WARD1)
  ;Invalid room-bed
- D CHKBED^ZZDGPMSE(RTN,.PAR,BED1,,2,WARD1)
+ D CHKBED^ZZDGPMSE(RTN,.PAR,BED2,,2,WARD1)
  ;Invalid facility treating specialty
  D CHKFTS^ZZDGPMSE(RTN,.PAR,,1)
  ;Invalid attender
@@ -86,7 +90,7 @@ UPDTRA ;
  ;Invalid room-bed
  K PARA
  S PARA(.01)=+WARD2,PAR("WARD")=WARD2
- D CHKBED^ZZDGPMSE(RTN,.PAR,BED2,1,3,WARD2)
+ D CHKBED^ZZDGPMSE(RTN,.PAR,BED1,1,3,WARD2)
  ;Invalid facility treating specialty
  D CHKFTS^ZZDGPMSE(RTN,.PAR,1,1)
  ;Invalid attender
