@@ -1,4 +1,4 @@
-ZZDGPMAPI1 ;Unit Tests - Admission API; 4/18/13
+ZZDGPMAPI1 ;Unit Tests - Admission API; 4/19/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI1")
@@ -38,7 +38,7 @@ ADMIT ;
  ;Invalid ward
  D CHKWARD^ZZDGPMSE(RTN,.PAR,WARD1)
  ;Invalid room-bed
- D CHKBED^ZZDGPMSE(RTN,.PAR,BED1,,2,WARD1)
+ D CHKBED^ZZDGPMSE(RTN,.PAR,BED1,,2,WARD1,,,1)
  ;Invalid facility treating specialty
  D CHKFTS^ZZDGPMSE(RTN,.PAR)
  ;Invalid attender
@@ -96,7 +96,7 @@ UPDADM ;
  S PAR("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-6,-6)_U
  D CHKWARD^ZZDGPMSE(RTN,.PAR,+WARD2,1) M PART=PAR K PAR
  ;Invalid room-bed
- D CHKBED^ZZDGPMSE(RTN,.PAR,+BED2,1,3,WARD1,,PART("DATE")) M PART=PAR K PAR
+ D CHKBED^ZZDGPMSE(RTN,.PAR,+BED2,1,3,WARD1,,PART("DATE"),1) M PART=PAR K PAR
  ;Invalid facility treating specialty
  D CHKFTS^ZZDGPMSE(RTN,.PAR,1,,PART("DATE")) M PART=PAR K PAR
  ;Invalid attender
@@ -126,7 +126,6 @@ UPDADM ;
  S PAR("DATE")=$$NOW^XLFDT() X RTN
  D CHKEQ^XTMUNIT(RE,0,"Unexpected error: "_$G(RE(0)))
  D CHKEQ^XTMUNIT($P(RE(0),U),"ADMMBBNM","Expected error: ADMMBBNM")
- D CHKEQ^XTMUNIT($P(RE(0),U,2)[$$FMTE^XLFDT(PARD("DATE")),1,"Expected error: ADMMBBNM")
  Q
 DELADM ;
  S TR("TYPE")=13

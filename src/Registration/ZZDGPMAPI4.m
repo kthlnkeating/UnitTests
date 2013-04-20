@@ -1,4 +1,4 @@
-ZZDGPMAPI4 ;Unit Tests - Check-in API; 4/18/13
+ZZDGPMAPI4 ;Unit Tests - Check-in API; 4/19/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI4")
@@ -56,7 +56,7 @@ LDGIN ; Check-in patient
  ; Invalid ward
  D CHKWARD^ZZDGPMSE(RTN,.PA,WARD1)
  ;Invalid room-bed
- D CHKBED^ZZDGPMSE(RTN,.PA,BED1,,2,WARD1)
+ D CHKBED^ZZDGPMSE(RTN,.PA,BED1,,2,WARD1,,,4)
  ; Invalid reason
  S %=$$LDGIN^DGPMAPI4(.R,.PA)
  D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^INVPARM","Expected error: INVPARM")
@@ -109,7 +109,7 @@ UPDLDGIN ; Update check-in lodger
  ; Invalid ward
  D CHKWARD^ZZDGPMSE(RTN,.PA,+WARD2,1)
  ;Invalid room-bed
- D CHKBED^ZZDGPMSE(RTN,.PA,BED2,1,3,WARD1)
+ D CHKBED^ZZDGPMSE(RTN,.PA,BED2,1,3,WARD1,,,4)
  ; Invalid reason
  S PA("LDGRSN")=99999,%=$$UPDLDGIN^DGPMAPI4(.R,.PA,AFN)
  D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^RSNNFND","Expected error: RSNNFND")
