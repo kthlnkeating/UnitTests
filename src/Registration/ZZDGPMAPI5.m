@@ -1,4 +1,4 @@
-ZZDGPMAPI5 ;Unit Tests - Check-in API; 4/18/13
+ZZDGPMAPI5 ;Unit Tests - Check-in API; 4/26/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI5")
@@ -28,7 +28,7 @@ CHECKOUT(AFN,DATE)
  S %=$$LDGOUT^DGPMAPI5(.R,.PA)
  Q R
 LDGOUT ;
- K PA,PAR
+ N PA,PAR,DGQUIET
  ; Invalid param check-in IFN
  S %=$$LDGOUT^DGPMAPI5(.R,.PA)
  D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^INVPARM","Expected error: INVPARM")
@@ -66,7 +66,7 @@ LDGOUT ;
  S COFN=R
  Q
 UPDLDGOU ;Update check-out
- N PA,PAR,RE
+ N PA,PAR,RE,DGQUIET
  ; No update
  S RTN="S %=$$UPDLDGOU^DGPMAPI5(.RE,.PA,COFN)"
  S %=$$UPDLDGOU^DGPMAPI5(.R,.PA,COFN)
@@ -103,6 +103,7 @@ UPDLDGOU ;Update check-out
  D CHKEQ^XTMUNIT(CI0,^DGPM(+COFN,0),"Incorrect movement")
  Q
 DELLDGOU ;Delete check-out ;
+ N R,DGQUIET
  ; Movement not found
  S %=$$DELLDGOU^DGPMAPI5(.R,COFN+100)
  D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^MVTNFND","Expected error: MVTNFND")

@@ -1,4 +1,4 @@
-ZZDGPMAPI6 ;Unit Tests - Check-in API; 4/18/13
+ZZDGPMAPI6 ;Unit Tests - Check-in API; 4/26/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI6")
@@ -33,6 +33,7 @@ TRA(AFN,DATE)
  S %=$$TRANSF^DGPMAPI2(.RT,.PAR)
  Q RT
 FTS ; TS transfer
+ N PAR,PA,DGQUIET,R
  S ADMDT=$$FMADD^XLFDT($$NOW^XLFDT(),,-3)
  S AFN=$$ADM(.ADM,ADMDT) K PAR,PA
  S RTN="S %=$$FTS^DGPMAPI6(.RE,.PA)"
@@ -66,7 +67,7 @@ FTS ; TS transfer
  D CHKEQ^XTMUNIT(CI0,^DGPM(+R,0),"Incorrect movement")
  Q
 PROVCHG ; Provider change
- K PA
+ N PA,DGQUIET,RE,R
  S RTN="S %=$$PROVCH^DGPMAPI6(.RE,.PA)"
  ; Check date
  D CHKDT^ZZDGPMUTL(RTN,.PA)
@@ -95,7 +96,7 @@ UPDPC ; Update provider change
  G UPD
 UPD ;
  ; No update
- K PA
+ N PA,RE,DGQUIET
  X RTN
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(R(0)))
  ; Movement not found
@@ -128,6 +129,7 @@ UPD ;
  D CHKEQ^XTMUNIT(CI0,^DGPM(+TSFN,0),"Incorrect movement")
  Q
 DELFTS ; Delete TS transfer
+ N RE,DGQUIET
  ; Not found
  S %=$$DELFTS^DGPMAPI6(.RE,TSFN+100)
  D CHKEQ^XTMUNIT(RE_U_$P($G(RE(0)),U),"0^RPMNFND","Expected error: RPMNFND")

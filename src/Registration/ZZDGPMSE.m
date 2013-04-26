@@ -1,4 +1,4 @@
-ZZDGPMSE ;Unit Tests - Clinic API; 4/19/13
+ZZDGPMSE ;Unit Tests - Clinic API; 4/26/13
  ;;1.0;UNIT TEST;;05/28/2012;
 ADDCLN(NAME) ; Add new clinic
  N IEN
@@ -30,8 +30,6 @@ SETUP(PNM,CNM) ;
  S ^DVB(395,1,0)="1^1^^^n"
  S ^DVB(395,1,"HQ")="^^^^^^^^^^0^^1"
  S ^DG(43,1,"GL")="^0^2^0"
- S ^DIC(213.9,1,0)="1^1"
- S ^DIC(213.9,1,"OFF")=1
  S $P(^ORD(101,1380,0),"^",3)=""
  S:$D(PNM) PNAME=PNM
  S:$D(CNM) CNAME=CNM

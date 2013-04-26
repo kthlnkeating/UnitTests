@@ -1,4 +1,4 @@
-ZZDGPMAPI4 ;Unit Tests - Check-in API; 4/19/13
+ZZDGPMAPI4 ;Unit Tests - Check-in API; 4/26/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI4")
@@ -26,6 +26,7 @@ DISCH(AIFN,DATE) ;
  S %=$$DISCH^DGPMAPI3(.RR,.DCH)
  Q
 LDGIN ; Check-in patient
+ N RE,DGQUIET
  S RTN="S %=$$LDGIN^DGPMAPI4(.RE,.PA)"
  S AIFN=$$ADM(.ADM,$$FMADD^XLFDT($$NOW^XLFDT(),,-1)_U)
  ; Invalid param patient
@@ -82,7 +83,7 @@ LDGIN ; Check-in patient
  S %=$$DELADM^DGPMAPI1(.R,RT)
  Q
 UPDLDGIN ; Update check-in lodger
- K PA,R S RTN="S %=$$UPDLDGIN^DGPMAPI4(.RE,.PA,AFN)"
+ N PA,R,DGQUIET S RTN="S %=$$UPDLDGIN^DGPMAPI4(.RE,.PA,AFN)"
  S AIFN=$$ADM(.ADM,$$FMADD^XLFDT($$NOW^XLFDT(),-1)_U)
  D DISCH(AIFN,$$FMADD^XLFDT($$NOW^XLFDT(),-1,1)_U)
  S PA("DATE")=$$NOW^XLFDT(),PA("LDGCOMM")="Check-in diagnosis",PA("LDGRSN")=1,PA("WARD")=WARD1_"^"
@@ -145,6 +146,7 @@ UPDLDGIN ; Update check-in lodger
  D CHKEQ^XTMUNIT(CI0,^DGPM(+AFN,0),"Incorrect movement")
  Q
 DELLDGIN ; Delete lodger check-in
+ N R,DGQUIET
  ; Movement not found
  S %=$$DELLDGIN^DGPMAPI4(.R,AFN+100)
  D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^MVTNFND","Expected error: MVTNFND")
