@@ -1,4 +1,4 @@
-ZZDGPMSE ;Unit Tests - Clinic API; 4/26/13
+ZZDGPMSE ;Unit Tests - Clinic API; 4/29/13
  ;;1.0;UNIT TEST;;05/28/2012;
 ADDCLN(NAME) ; Add new clinic
  N IEN
@@ -27,8 +27,6 @@ ADDPAT(NAME,I) ; Add new patient
  Q IEN_U_NAME_I
  ;
 SETUP(PNM,CNM) ;
- S ^DVB(395,1,0)="1^1^^^n"
- S ^DVB(395,1,"HQ")="^^^^^^^^^^0^^1"
  S ^DG(43,1,"GL")="^0^2^0"
  S $P(^ORD(101,1380,0),"^",3)=""
  S:$D(PNM) PNAME=PNM
