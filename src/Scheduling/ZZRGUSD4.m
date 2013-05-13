@@ -1,4 +1,4 @@
-ZZRGUSD4 ;Unit Tests - Clinic API; 4/19/13
+ZZRGUSD4 ;Unit Tests - Clinic API; 5/13/13
  ;;1.0;UNIT TEST;;05/28/2012;
  Q:$T(^SDMAPI1)=""
  TSTART
@@ -46,6 +46,14 @@ MAKEUS ;
  D CHKEQ^XTMUNIT(RETURN,0,"Expected error: APTCINV")
  D CHKEQ^XTMUNIT($P(RETURN(0),U),"APTCINV","Expected error: APTCINV")
  K ^SC(+SC,"I")
+ ;
+ S SDT=$$NOW^XLFDT(),SDT=$E(SDT,1,10)_"50"
+ S %=$$MAKEUS^SDMAPI2(.RE,DFN,SC,SDT,TYPE)
+ D CHKEQ^XTMUNIT(RE,1,"Unexpected error: ")
+ S SC0=+DFN_"^"_+LEN_"^^^^"_DUZ_"^"_DT
+ D CHKEQ^XTMUNIT(^SC(+SC,"S",+SDT,1,1,0),SC0,"Invalid clinic appointment - 0 node")
+ S DPT0=+SC_"^^^^^^4^^^^^^^^^"_+TYPE_"^^"_DUZ_"^"_DT_"^^^^^0^W^0"
+ D CHKEQ^XTMUNIT(^DPT(+DFN,"S",+SDT,0),DPT0,"Invalid patient appointment - 0 node")
  Q
 MAKECO ;
  N RETURN,%,COD
