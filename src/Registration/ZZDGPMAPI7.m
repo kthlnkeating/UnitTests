@@ -72,6 +72,9 @@ LSTWARD ;
  D CHKEQ^XTMUNIT(RE(1,"SPEC"),$P(^DIC(42,IFN,0),U,12)_U_$P(^DIC(42.4,$P(^DIC(42,IFN,0),U,12),0),U),"Incorrect spec")
  Q
 LSTWBED ;
+ S %=$$LSTWBED^DGPMAPI7(.RE,,,,"not no")
+ D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM")
+ D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM")
  S IFN=$P(^DIC(42,0),U,3),NAME=$P(^DIC(42,IFN,0),U)
  S %=$$LSTWBED^DGPMAPI7(.RE,,,,WARD1)
  D CHKEQ^XTMUNIT(+RE(0),0,"Unexpected error: "_$G(RE(0)))
