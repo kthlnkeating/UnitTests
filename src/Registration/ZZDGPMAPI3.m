@@ -26,6 +26,11 @@ DSCH ;
  S %=$$DISCH^DGPMAPI3(.RE,.DIS)
  D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM")
  D CHKEQ^XTMUNIT($P(RE(0),U,2)["'ADMIFN'",1,"Expected error: INVPARM")
+ ; invalid param admission
+ S DIS("ADMIFN")="not no",%=$$DISCH^DGPMAPI3(.RE,.DIS)
+ D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM")
+ D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM")
+ ; admission not found
  S DIS("ADMIFN")=AFN+3_U,%=$$DISCH^DGPMAPI3(.RE,.DIS)
  D CHKEQ^XTMUNIT(RE,0,"Expected error: ADMNFND")
  D CHKEQ^XTMUNIT($P(RE(0),U),"ADMNFND","Expected error: ADMNFND")
