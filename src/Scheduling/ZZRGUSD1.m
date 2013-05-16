@@ -174,11 +174,19 @@ GETPEND ;
  D CHKEQ^XTMUNIT(RETURN(+SD,"LENGTH OF APP'T"),+LEN,"LENGTH OF APP'T")
  Q
 FRSTAVBL ;
- N DATE,RETURN,%
+ N DATE,RETURN,%,SCF2,SD
+ S SCF2=$$ADDCLN^ZZRGUSDC("First AV Clinic")
  S RTN="S %=$$FRSTAVBL^SDMAPI1(.RETURN,.CLN)" D EXSTCLN^ZZRGUSD5(RTN)
- S %=$$FRSTAVBL^SDMAPI1(.RETURN,SC)
- S DATE=$O(^SC(+SC,"T",0))
- D CHKEQ^XTMUNIT(RETURN,DATE,"INCORRECT Date")
+ ; no availibility
+ S %=$$FRSTAVBL^SDMAPI1(.RETURN,SCF2)
+ D CHKEQ^XTMUNIT(RETURN,"","INCORRECT Date")
+ S DD=9999999
+ S ^SC(+SCF2,"T3",DD,0)=DD,^SC(+SCF2,"T3",DD,1)="[1 1 1 1|1 1 1 1|1 1 1 1|1 1 1 1|1 1 1 1|1 1 1 1|1 1 1 1|1 1 1 1]"
+ S %=$$FRSTAVBL^SDMAPI1(.RETURN,SCF2)
+ N FDT1,FDT
+ S FDT1=$$DT^XLFDT()+6,DOW=$$DOW^SDMAPI5(FDT1)
+ S FDT=$$FMADD^XLFDT(FDT1,$S(DOW>3:7-DOW+3,1:3-DOW))
+ D CHKEQ^XTMUNIT(RETURN,FDT,"INCORRECT Date")
  Q
 LSTCAPTS ;
  N SDT,R,RETURN,%
@@ -257,6 +265,7 @@ VARLEN ;
  S $P(^SC(+SC,"SL"),U,2)="V"
  Q
 XTENT ;
+ ;;FRSTAVBL;Get first available date 
  ;;CLNCK;Check clinic for valid stop code restriction.
  ;;GETCLN;Get Clinic data
  ;;LSTCLNS;Get clinics
@@ -267,7 +276,6 @@ XTENT ;
  ;;GETAPPT;Get apt type
  ;;GETELIG;Get Eligibility Code
  ;;GETPEND;Get pending appointments
- ;;FRSTAVBL;Get first available date 
  ;;LSTCAPTS;List clinic appointments
  ;;LSTPAPTS;List patient appointments
  ;;SLOTS;Get available slots
