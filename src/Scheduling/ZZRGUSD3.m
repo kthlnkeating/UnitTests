@@ -1,4 +1,4 @@
-ZZRGUSD3 ;Unit Tests - Clinic API; 4/16/13
+ZZRGUSD3 ;Unit Tests - Clinic API; 5/16/13
  ;;1.0;UNIT TEST;;05/28/2012;
  Q:$T(^SDMAPI1)=""
  TSTART
@@ -41,6 +41,10 @@ CHKAPP ;
  S %=$$CHKAPP^SDMAPI2(.RETURN,SC,DFN,DT+3_".08",LEN)
  D CHKEQ^XTMUNIT(RETURN,0,"Expected error: APTEXCD")
  D CHKEQ^XTMUNIT($P(RETURN(0),U),"APTEXCD","Expected error: APTEXCD")
+ N ST,DOW S DOW=$$DOW^SDMAPI5(+SD)
+ S ST=$P("SU^MO^TU^WE^TH^FR^SA","^",DOW+2)_" "_$E(SD,6,7)
+ S ST=ST_"  [1 1 1 1|1 1 1 1|1 1 1 1|1 1 1 1|1 1 1 1|1 1 1 1|1 1 1 1|1 1 1 1]"
+ D CHKEQ^XTMUNIT(ST,^SC(+SC,"ST",$P(SD,"."),1),"Incorrect clinic ST node")
  ;check if patient has an active appointment on the same time
  S %=$$MAKE^SDMAPI2(.RET,DFN,SC,+SD,TYPE,,LEN,NXT,RSN)
  S %=$$CHKAPP^SDMAPI2(.RETURN,SC,DFN,+SD,LEN)
