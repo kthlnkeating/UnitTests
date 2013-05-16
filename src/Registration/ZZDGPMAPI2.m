@@ -1,4 +1,4 @@
-ZZDGPMAPI2 ;Unit Tests - Transfer API; 5/14/13
+ZZDGPMAPI2 ;Unit Tests - Transfer API; 5/16/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI2")
@@ -83,7 +83,7 @@ UPDTRA ;
  D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM DATE")
  D CHKEQ^XTMUNIT($P(RE(0),U),"TRANBADM","Expected error: TRANBADM")
  ;Invalid transfer type
- S PAR("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),,-1)_U
+ S PAR("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),,-3)_U
  S PAR("TYPE")="11^"
  ;Invalid ward
  D CHKWARD^ZZDGPMSE(RTN,.PAR,WARD2,1)
