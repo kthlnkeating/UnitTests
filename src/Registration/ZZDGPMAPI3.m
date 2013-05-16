@@ -154,8 +154,39 @@ UPDDSCH ;Update discharge
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
  S %=$$DELADM^DGPMAPI1(.RE,AFN)
  Q
+CONTASH ; Continued ASIH
+ N RE,PAR
+ S AFN=$$ADM()
+ S TFN=$$TASH(AFN)
+ ; invalid parameter FCTY
+ S %=$$GETLASTM^DGPMAPI8(.LMVT,DFN)
+ S PAR("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),,-1)_U,PAR("TYPE")=35,PAR("ADMIFN")=LMVT("ADMIFN")
+ S %=$$DISCH^DGPMAPI3(.RE,.PAR),DISCH=+RE
+ D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM")
+ D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM")
+ ; discharge
+ S FTS=$P(^DIC(4,0),U,3),PAR("FCTY")=FTS_U_$P(^DIC(4,FTS,0),U)
+ S AFN2=^DGPM(LMVT("ADMIFN"),0)
+ S %=$$DISCH^DGPMAPI3(.RE,.PAR),DISCH=+RE,$P(AFN2,U,17)=DISCH
+ S DFN0=+PAR("DATE")_U_"3"_U_+DFN_"^35^^^^^^^^^^"_LMVT("ADMIFN")_"^^^^46^^^^1"
+ D CHKEQ^XTMUNIT(AFN2,^DGPM(LMVT("ADMIFN"),0),"Incorrect admission node")
+ D CHKEQ^XTMUNIT(DFN0,^DGPM(DISCH,0),"Incorrect discharge node")
+ S TFN=$O(^DGPM("APTT2",26,+PAR("DATE")+0.0000002,0))
+ S TFN0=+PAR("DATE")_U_"2"_U_+DFN_"^22^"_+PAR("FCTY")_"^^^^^^^^^"_AFN_"^^^45^^^^2"
+ D CHKEQ^XTMUNIT(TFN0,^DGPM(TFN,0),"Incorrect transfer node")
+ ; cannot delete while asih discharge
+ S %=$$DELDSCH^DGPMAPI3(.RE,DISCH_U)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^DCHCDWAH","Expected error: DCHCDWAH")
+ ; delete transfer (and discharge)
+ S AFN2=^DGPM(LMVT("ADMIFN"),0)
+ S %=$$DELTRA^DGPMAPI2(.RE,TFN),$P(AFN2,U,17)=""
+ D CHKEQ^XTMUNIT(AFN2,^DGPM(LMVT("ADMIFN"),0),"Incorrect admission node")
+ D CHKEQ^XTMUNIT(0,$D(^DGPM(DISCH,0)),"Incorrect discharge node")
+ D CHKEQ^XTMUNIT(0,$D(^DGPM(TFN,0)),"Incorrect transfer node")
+ Q
 XTENT ;
  ;;DSCH;Discharge
  ;;FROMASIH;Discharge from asih.
  ;;TRAOUT;Transfer out
  ;;UPDDSCH;Update discharge
+ ;;CONTASH;Continued ASIH
