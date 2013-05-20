@@ -1,4 +1,4 @@
-ZZRGUSD3 ;Unit Tests - Clinic API; 5/16/13
+ZZRGUSD3 ;Unit Tests - Clinic API; 5/20/13
  ;;1.0;UNIT TEST;;05/28/2012;
  Q:$T(^SDMAPI1)=""
  TSTART
@@ -69,17 +69,28 @@ CHKAPP ;
  D CHKEQ^XTMUNIT(RETURN,0,"Expected error: APTPPAB")
  D CHKEQ^XTMUNIT($P(RETURN(0),U),"APTPPAB","Expected error: APTPPAB")
  D CHKEQ^XTMUNIT($P(RETURN(0),U,3),1,"Level 1 expected")
- ;check overbook
+ ; overbook inside clinic availability - no open slots
  S $P(^DPT(+DFN,0),U,3)=DT-100 K ^XUSEC("SDOB",DUZ)
  S %=$$CHKAPP^SDMAPI2(.RETURN,SC,DFN,+SD,LEN)
- D CHKEQ^XTMUNIT(RETURN,0,"Expected error: APTNOST")
- D CHKEQ^XTMUNIT($P(RETURN(0),U),"APTNOST","Expected error: APTNOST")
+ D CHKEQ^XTMUNIT(RETURN,0,"Expected error: APTSDOB")
+ D CHKEQ^XTMUNIT($P(RETURN(0),U),"APTSDOB","Expected error: APTSDOB")
+ D CHKEQ^XTMUNIT(RETURN(1),0,"Inside clinic availability")
  D CHKEQ^XTMUNIT($P(RETURN(0),U,3),1,"Level 1 expected")
+ ; overbook outside clinic availability - when??
+ S %=$$CHKAPP^SDMAPI2(.RETURN,SC,DFN,$$FMADD^XLFDT(+SD,,-2),LEN)
+ D CHKEQ^XTMUNIT(RETURN,0,"Expected error: APTSDOB")
+ D CHKEQ^XTMUNIT($P(RETURN(0),U),"APTSDOB","Expected error: APTSDOB")
+ D CHKEQ^XTMUNIT(RETURN(1),1,"Outside clinic availability")
+ D CHKEQ^XTMUNIT($P(RETURN(0),U,3),1,"Level 1 expected")
+ ; overbook warning
  S ^XUSEC("SDOB",DUZ)=""
  S %=$$CHKAPP^SDMAPI2(.RETURN,SC,DFN,+SD,LEN)
  D CHKEQ^XTMUNIT(RETURN,0,"Expected error: APTOVBK")
  D CHKEQ^XTMUNIT($P(RETURN(0),U),"APTOVBK","Expected error: APTOVBK")
  D CHKEQ^XTMUNIT($P(RETURN(0),U,3),2,"Level 2 expected")
+ ; ok
+ S %=$$CHKAPP^SDMAPI2(.RETURN,SC,DFN,+SD,LEN,1)
+ D CHKEQ^XTMUNIT(RETURN,1,"Unexpected error: "_$G(RETURN(0)))
  Q
  ;
 LSTPATS ;
