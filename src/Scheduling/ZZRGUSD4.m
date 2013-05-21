@@ -1,4 +1,4 @@
-ZZRGUSD4 ;Unit Tests - Clinic API; 5/13/13
+ZZRGUSD4 ;Unit Tests - Clinic API; 5/21/13
  ;;1.0;UNIT TEST;;05/28/2012;
  Q:$T(^SDMAPI1)=""
  TSTART
@@ -171,9 +171,6 @@ LSTASTYP ;Check appt subtype
 MAKENA ; Request type
  N RE,%
  S SD1=$$FMADD^XLFDT(SD,-2)
- ; Invalid scheduling request type
- S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SD1,TYPE,,LEN,,RSN,,,,,,,1)
- D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^INVPARAM","Expected error: INVPARAM")
  ; Scheduling request type not found
  S %=$$MAKE^SDMAPI2(.RE,DFN,SC,SD1,TYPE,,LEN,"AAA",RSN,,,,,,,1)
  D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^SRTNFND","Expected error: SRTNFND")
