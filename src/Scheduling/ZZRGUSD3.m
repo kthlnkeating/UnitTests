@@ -1,4 +1,4 @@
-ZZRGUSD3 ;Unit Tests - Clinic API; 5/20/13
+ZZRGUSD3 ;Unit Tests - Clinic API; 5/21/13
  ;;1.0;UNIT TEST;;05/28/2012;
  Q:$T(^SDMAPI1)=""
  TSTART
@@ -209,15 +209,26 @@ CANAPP ;
  N RETURN,%
  K ^SC(+SC,"S"),^DPT(+DFN,"S")
  S SD1=$P(DT,".")_".13",SD1=SD1_U_$$FMTE^XLFDT(SD1)
- ;reactivate cancelled appointment
- S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SD1,TYPE,,LEN,NXT,RSN)
+ ;reactivate cancelled appointment warning
+ S LAB=$P(DT,".")_".133",LAB=LAB_U_$$FMTE^XLFDT(LAB)
+ S XRAY=$P(DT,".")_".14",XRAY=XRAY_U_$$FMTE^XLFDT(XRAY)
+ S EKG=$P(DT,".")_".143",EKG=EKG_U_$$FMTE^XLFDT(EKG)
+ S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SD1,TYPE,,LEN,NXT,RSN,,.LAB,.XRAY,.EKG,)
+ ;check lab, xray, ekg
+ S DPT0=+SC_"^^"_+LAB_"^"_+XRAY_"^"_+EKG_"^^3^^^^^^^^^"_+TYPE_"^^"_DUZ_"^"_DT_"^^^^^0^"_NXT_"^3"
+ D CHKEQ^XTMUNIT(^DPT(+DFN,"S",+SD1,0),DPT0,"Invalid patient appointment - 0 node")
  S %=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD1,"PC",CRSN,"Cancellation test remarks")
- S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SD1,TYPE,,LEN,NXT,RSN,,,,,,,.LVL)
+ S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SD1,TYPE,,LEN,NXT,RSN,,.LAB,.XRAY,.EKG,,,.LVL)
  D CHKEQ^XTMUNIT(RETURN,0,"Expected error: APTPPCP")
  D CHKEQ^XTMUNIT($P(RETURN(0),U),"APTPPCP","Expected error: APTPPCP")
- ;
- S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SD1,TYPE,,LEN,NXT,RSN,,,,,,CONS,1)
+ ;reactivate cancelled appointment ok
+ S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SD1,TYPE,,LEN,NXT,RSN,,.LAB,.XRAY,.EKG,,CONS,1)
  D CHKEQ^XTMUNIT(RETURN,1,"Unexpected error: "_$G(RETURN(0)))
+ S SC0=+DFN_"^"_+LEN_"^^"_RSN_"^^"_DUZ_"^"_DT
+ D CHKEQ^XTMUNIT(^SC(+SC,"S",+SD1,1,1,0),SC0,"Invalid clinic appointment - 0 node")
+ S DPT0=+SC_"^^"_+LAB_"^"_+XRAY_"^"_+EKG_"^^3^^^^^^^^^"_+TYPE_"^^"_DUZ_"^"_DT_"^^^^^0^"_NXT_"^3"
+ D CHKEQ^XTMUNIT(^DPT(+DFN,"S",+SD1,0),DPT0,"Invalid patient appointment - 0 node")
+ D CHKEQ^XTMUNIT($D(^DPT(+DFN,"S",+SD1,"R")),0,"Invalid patient appointment - R node")
  ;Cancel existing appointment on same time
  S %=$$MAKE^SDMAPI2(.RETURN,DFN,SC,SD1,TYPE,,LEN,NXT,RSN,,,,,,CONS,1)
  D CHKEQ^XTMUNIT(RETURN,1,"Unexpected error: "_$G(RETURN(0)))
