@@ -1,4 +1,4 @@
-ZZDGPMAPI1 ;Unit Tests - Admission API; 5/14/13
+ZZDGPMAPI1 ;Unit Tests - Admission API; 5/22/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI1")
@@ -48,21 +48,26 @@ ADMIT ;
  ;Invalid source of admission
  D CHKASRC^ZZDGPMAPI1(RTN,.PAR)
  ;Admit
+ S PAR("DIAG",1)="Diag 1",PAR("DIAG",3)="Diag 3"
  S %=$$ADMIT^DGPMAPI1(.RE,.PAR)
  S AFN=RE
- ;check valid data
- D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U),+PAR("DATE"),"Unexpected error: "_$G(RE(0)))
- D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,4),+PAR("TYPE"),"Unexpected error: "_$G(RE(0)))
- D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,6),+PAR("WARD"),"Unexpected error: "_$G(RE(0)))
- D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,7),+PAR("ROOMBED"),"Unexpected error: "_$G(RE(0)))
- D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,10),PAR("SHDIAG"),"Unexpected error: "_$G(RE(0)))
- D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,12),+PAR("ADMREG"),"Unexpected error: "_$G(RE(0)))
+ D CHKDAT(AFN,.PAR,.RE,"ADMIT")
  ;Invalid date
  S TMP=$$FMTE^XLFDT(+PAR("DATE"))
  S PAR("DATE")=$$FMADD^XLFDT(+PAR("DATE"),-1) S %=$$ADMIT^DGPMAPI1(.RE,.PAR)
  D CHKEQ^XTMUNIT(RE,0,"Expected error: ADMPAHAD")
  D CHKEQ^XTMUNIT($P(RE(0),U),"ADMPAHAD","Expected error: ADMPAHAD")
  D CHKEQ^XTMUNIT($P(RE(0),U,2)[TMP,1,"Expected error: ADMPAHAD")
+ Q
+CHKDAT(AFN,PAR,RE,OP)
+ ;check valid data
+ D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U),+PAR("DATE"),"Incorrect admission date - "_OP)
+ D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,4),+PAR("TYPE"),"Incorrect admission type - "_OP)
+ D CHKEQ^XTMUNIT(+$P(^DGPM(+AFN,0),U,5),+$G(PAR("FCTY")),"Incorrect fcty - "_OP)
+ D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,6),+PAR("WARD"),"Incorrect ward - "_OP)
+ D CHKEQ^XTMUNIT(+$P(^DGPM(+AFN,0),U,7),+$G(PAR("ROOMBED")),"Incorrect bed - "_OP)
+ D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,10),PAR("SHDIAG"),"Incorrect shdiag - "_OP)
+ D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,12),+PAR("ADMREG"),"Incorrect admreg - "_OP)
  Q
 CHKASRC(RTN,PAR,UPD) ;
  ;primary physician not found
@@ -154,7 +159,35 @@ CHKAREG(RTN,PAR,UPD) ;
  S $P(^DIC(43.4,+PAR("ADMREG"),0),U,4)=0
  S PAR("ADMREG")=(($P(^DIC(43.4,0),U,3))-$G(UPD))_U
  Q
+TRANSFIN ;Transfer in patient.
+ N PAR,RE
+ S PAR("ADMSRC")="53^",PAR("ATNDPHY")=DUZ,PAR("DATE")=$$NOW^XLFDT(),PAR("FTSPEC")="40^",PAR("FDEXC")=1
+ S PAR("PATIENT")=DFN,PAR("SHDIAG")="Update diagnosis",PAR("TYPE")="5^",PAR("WARD")=WARD1,PAR("ADMREG")="75^"
+ ; invalid param transfer facility
+ S RTN="S %=$$ADMIT^DGPMAPI1(.RE,.PAR)"
+ D CHKFCTY^ZZDGPMAPI2(RTN,.PAR)
+ ; ok to add
+ S PAR("FCTY")=$P(^DIC(4,0),U,3)
+ S %=$$ADMIT^DGPMAPI1(.RE,.PAR)
+ D CHKDAT(RE,.PAR,.RE,"TRANSFIN")
+ S AFN=+RE
+ S %=$$DELADM^DGPMAPI1(.RE,+RE)
+ S PAR("ADMSRC")="53^",PAR("ATNDPHY")=DUZ,PAR("DATE")=$$NOW^XLFDT(),PAR("FTSPEC")="40^",PAR("FDEXC")=1
+ S PAR("PATIENT")=DFN,PAR("SHDIAG")="Update diagnosis",PAR("TYPE")="1^",PAR("WARD")=WARD1,PAR("ADMREG")="75^"
+ S PAR("FCTY")=$P(^DIC(4,0),U,3)+99
+ S %=$$ADMIT^DGPMAPI1(.RE,.PAR)
+ K PAR
+ ; invalid param transfer facility
+ S PAR("TYPE")="5^"
+ S RTN="S %=$$UPDADM^DGPMAPI1(.RE,.PAR,AFN)"
+ D CHKFCTY^ZZDGPMAPI2(RTN,.PAR)
+ ; ok to update
+ S PAR("FCTY")=$P(^DIC(4,0),U,3)
+ S %=$$UPDADM^DGPMAPI1(.RE,.PAR,AFN)
+ D CHKEQ^XTMUNIT(+$P(^DGPM(+AFN,0),U,5),+$G(PAR("FCTY")),"Incorrect fcty - TRANSIN")
+ Q
 XTENT ;
  ;;ADMIT;Admit patient.
  ;;UPDADM;Update admission.
  ;;DELADM;Delete admission.
+ ;;TRANSFIN;Transfer in patient.
