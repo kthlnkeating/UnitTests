@@ -146,6 +146,7 @@ TOASIH ;
  ;transfer
  X RTN
  D CHKEQ^XTMUNIT(RE>0,1,"Unexpected error: "_$G(RE(0)))
+ D CHKASH(AFN,RE,.RE,.PAR,PAR("DATE"))
  ;to asih after to asih
  S PAR("DATE")=+PAR("DATE")+0.0001 X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: ADMINVAT")
@@ -234,9 +235,53 @@ TOABS ;
  D CHKEQ^XTMUNIT(RE>0,1,"Unexpected error: "_$G(RE(0)))
  Q
  ;
+UPDTOASH ;
+ S PAR("ADMIFN")=AFN,(TDT,PAR("DATE"))=$$NOW^XLFDT(),PAR("PATIENT")=DFN,PAR("TYPE")="11^",PAR("WARD")=WARD1
+ S %=$$TRANSF^DGPMAPI2(.RE,.PAR),TFN=RE
+ K PAR S PAR("TYPE")=13
+ S RTN="S %=$$UPDTRA^DGPMAPI2(.RE,.PAR,TFN)"
+ ; invalid facility directory exclusion
+ S PAR("FDEXC")=2,PAR("DATE")=TDT X RTN
+ D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM")
+ D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM")
+ D CHKEQ^XTMUNIT($P(RE(0),U,2)["FDEXC",1,"Expected error: INVPARM FDEXC")
+ ;Invalid admitting regulation
+ S PAR("FDEXC")="0^"
+ D CHKAREG^ZZDGPMAPI1(RTN,.PAR)
+ ;Invalid short diag
+ D CHKDIAG^ZZDGPMSE(RTN,.PAR,"To asih diagnosis")
+ ;Invalid ward
+ K PAR("WARD")
+ D CHKWARD^ZZDGPMSE(RTN,.PAR,WARD2)
+ ;Invalid facility treating specialty
+ D CHKFTS^ZZDGPMSE(RTN,.PAR)
+ ;Invalid attender
+ D CHKATD^ZZDGPMSE(RTN,.PAR)
+ ;Invalid primary physician
+ D CHKPRYM^ZZDGPMSE(RTN,.PAR)
+ ;Invalid source of admission
+ D CHKASRC^ZZDGPMAPI1(RTN,.PAR)
+ ;transfer
+ X RTN D CHKASH(AFN,TFN,.RE,.PAR,TDT)
+ ;update ASIH
+ X RTN
+ D CHKEQ^XTMUNIT($P($G(RE(0)),U),"TRACEAT","Expected error: TRACEAT")
+ Q
+CHKASH(AFN,TFN,RE,PAR,TDT)
+ N TFN0,DMFN0,NAFN0
+ S TFN0=+TDT_"^2^"_+DFN_"^13^^"_+WARD2_"^^^^^^^^"_+AFN_"^"_RE("NAFN")_"^^^13^^^^1^^"
+ D CHKEQ^XTMUNIT(^DGPM(TFN,0),TFN0,"Incorrect transfer 0 node")
+ S DMFN0=$$FMADD^XLFDT(+TDT,30)_"^3^"_+DFN_"^34^^^^^^^^^^"_+AFN_"^^^^42^^^^0^^"
+ D CHKEQ^XTMUNIT(^DGPM(RE("DMFN"),0),DMFN0,"Incorrect discharge 0 node")
+ S NAFN0=+TDT_"^1^"_+DFN_"^10^^"_+WARD2_"^^^^"_PAR("SHDIAG")_"^^"_+PAR("ADMREG")
+ S NAFN0=NAFN0_"^^"_+RE("NAFN")_"^^"_$P(^DGPM(RE("NAFN"),0),U,16)_"^^40^^^"_+TFN_"^2^^^0"
+ D CHKEQ^XTMUNIT(^DGPM(RE("NAFN"),0),NAFN0,"Incorrect new admission 0 node")
+ D CHKEQ^XTMUNIT($P(^DGPM(AFN,0),U,17),RE("DMFN"),"Incorrect old admission discharge field")
+ Q
 XTENT ;
  ;;TRANSF;Transfer patient.
  ;;UPDTRA;Update transfer.
  ;;TOASIH;To ASIH transfer.
- ;;TOASIHO;To ASIH OTHER FACILITY) transfer.
+ ;;TOASIHO;To ASIH (OTHER FACILITY) transfer.
  ;;TOABS;To absence transfer.
+ ;;UPDTOASH;Update transfer TO ASIH.
