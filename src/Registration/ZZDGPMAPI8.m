@@ -1,4 +1,4 @@
-ZZDGPMAPI8 ;Unit Tests - Clinic API; 4/23/13
+ZZDGPMAPI8 ;Unit Tests - Clinic API; 5/27/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI8")
@@ -235,6 +235,38 @@ GETLASTM ;
  D CHKEQ^XTMUNIT(RE("MFN"),COFN,"Last movement IEN")
  D CHKEQ^XTMUNIT(RE("MTYPE"),"45^CHECK-OUT LODGER","Last movement type")
  Q
+GETWARD ;
+ N RE S TDFN=DFN
+ ;invalid parameter
+ S %=$$GETWARD^DGPMAPI8(.RE,)
+ D CHKEQ^XTMUNIT($P($G(RE(0)),U),"INVPARM","Expected error: INVPARM")
+ ;ward not found
+ S %=$$GETWARD^DGPMAPI8(.RE,99999)
+ D CHKEQ^XTMUNIT($P($G(RE(0)),U),"WRDNFND","Expected error: WRDNFND")
+ ; ok
+ S %=$$GETWARD^DGPMAPI8(.RE,WARD1)
+ D CHKEQ^XTMUNIT(RE("NAME"),$P(^DIC(42,+WARD1,0),U),"Ward name")
+ D CHKEQ^XTMUNIT(RE("BED"),"","Bed section")
+ D CHKEQ^XTMUNIT(RE("SERVICE"),"NH^NHCU","Service")
+ D CHKEQ^XTMUNIT(RE("SRILL"),"","Seriously ill")
+ D CHKEQ^XTMUNIT(RE("SPCTY"),"1^ALLERGY","Specialty")
+ Q
+GETPSRV ;
+ N RE S TDFN=DFN
+ ;invalid parameter
+ S %=$$GETPSRV^DGPMAPI8(.RE,)
+ D CHKEQ^XTMUNIT($P($G(RE(0)),U),"INVPARM","Expected error: INVPARM")
+ ;period of service not found
+ S %=$$GETPSRV^DGPMAPI8(.RE,99999)
+ D CHKEQ^XTMUNIT($P($G(RE(0)),U),"PSRVNFND","Expected error: PSRVNFND")
+ ; ok
+ S %=$$GETPSRV^DGPMAPI8(.RE,1)
+ D CHKEQ^XTMUNIT(RE("NAME"),$P(^DIC(21,1,0),U),"Period of service name")
+ D CHKEQ^XTMUNIT(RE("ABV"),"","Abbreviation")
+ D CHKEQ^XTMUNIT(RE("CODE"),"0","Code")
+ D CHKEQ^XTMUNIT(+RE("BEGDT"),2500627,"Begining date")
+ D CHKEQ^XTMUNIT(+RE("ENDDT"),2550131,"Ending date")
+ Q
 XTENT ;
  ;;LSTADTYP;Admission types
  ;;LSTTRTYP;Transfer types
@@ -245,3 +277,5 @@ XTENT ;
  ;;GETTRA;Get transfer
  ;;GETMVT;Get movement
  ;;GETLASTM;Get last movement
+ ;;GETWARD;Get ward
+ ;;GETPSRV;Get period of service

@@ -1,4 +1,4 @@
-ZZDGPMAPI2 ;Unit Tests - Transfer API; 5/16/13
+ZZDGPMAPI2 ;Unit Tests - Transfer API; 5/27/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI2")
@@ -269,9 +269,9 @@ UPDTOASH ;
  Q
 CHKASH(AFN,TFN,RE,PAR,TDT)
  N TFN0,DMFN0,NAFN0
- S TFN0=+TDT_"^2^"_+DFN_"^13^^"_+WARD2_"^^^^^^^^"_+AFN_"^"_RE("NAFN")_"^^^13^^^^1^^"
+ S TFN0=+TDT_"^2^"_+DFN_"^13^^"_+WARD2_"^^^^^^^^"_+AFN_"^"_RE("NAFN")_"^^^13^^^^1"
  D CHKEQ^XTMUNIT(^DGPM(TFN,0),TFN0,"Incorrect transfer 0 node")
- S DMFN0=$$FMADD^XLFDT(+TDT,30)_"^3^"_+DFN_"^34^^^^^^^^^^"_+AFN_"^^^^42^^^^0^^"
+ S DMFN0=$$FMADD^XLFDT(+TDT,30)_"^3^"_+DFN_"^34^^^^^^^^^^"_+AFN_"^^^^42^^^^0"
  D CHKEQ^XTMUNIT(^DGPM(RE("DMFN"),0),DMFN0,"Incorrect discharge 0 node")
  S NAFN0=+TDT_"^1^"_+DFN_"^10^^"_+WARD2_"^^^^"_PAR("SHDIAG")_"^^"_+PAR("ADMREG")
  S NAFN0=NAFN0_"^^"_+RE("NAFN")_"^^"_$P(^DGPM(RE("NAFN"),0),U,16)_"^^40^^^"_+TFN_"^2^^^0"

@@ -1,4 +1,4 @@
-ZZDGPMAPI7 ;Unit Tests - Clinic API; 5/16/13
+ZZDGPMAPI7 ;Unit Tests - Clinic API; 5/27/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI7")
@@ -85,25 +85,15 @@ LSTWBED ;
  D CHKEQ^XTMUNIT(RE(1,"NAME"),$P(^DG(405.4,+BED1,0),U),"Incorrect name")
  D CHKEQ^XTMUNIT(RE(1,"DESC"),$P(^DG(405.4,+BED1,0),U,2),"Incorrect desc")
  Q
-LSTPATS ;
- S IFN=+DFN,NAME=$P(^DPT(+DFN,0),U)
- S %=$$LSTPATS^DGPMAPI7(.RE,NAME,,)
- D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
- D CHKEQ^XTMUNIT(RE(1,"ID"),+IFN,"Incorrect IFN")
- D CHKEQ^XTMUNIT(RE(1,"NAME"),$P(^DPT(IFN,0),U),"Incorrect name")
- D CHKEQ^XTMUNIT(RE(1,"SSN"),$P(^DPT(IFN,0),U,9),"Incorrect desc")
- D:$D(^DPT(IFN,"TYPE")) CHKEQ^XTMUNIT(RE(1,"TYPE"),$P($G(^DG(391,$P($G(^DPT(IFN,"TYPE")),U),0)),U),"Incorrect desc")
- D CHKEQ^XTMUNIT($E(RE(1,"VETERAN"),1),$P($G(^DPT(IFN,"VET")),U),"Incorrect desc")
- Q
 LSTTPATS ;
  N RE,PAR,ADM
- S %=$$LSTTPATS^DGPMAPI7(.RE,NAME,,) S DATE1=$$FMADD^XLFDT($$NOW^XLFDT(),,-3)_U
+ S %=$$LSTTPATS^DGPMAPI7(.RE,$P(DFN,U,2),,) S DATE1=$$FMADD^XLFDT($$NOW^XLFDT(),,-3)_U
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
  S ADM("PATIENT")=+DFN,ADM("TYPE")=1,ADM("ADMREG")=1,ADM("DATE")=DATE1
  S ADM("FDEXC")=1,ADM("SHDIAG")="Transfer Admit diagnosis",ADM("WARD")=WARD1,ADM("FTSPEC")="1^"
  S ADM("ATNDPHY")=DUZ,ADM("ROOMBED")=BED1 M PAR=ADM
  S %=$$ADMIT^DGPMAPI1(.RT,.ADM) S AFN=+RT
- S %=$$LSTTPATS^DGPMAPI7(.RE,.NAME,,) S IFN=+DFN
+ S %=$$LSTTPATS^DGPMAPI7(.RE,$P(DFN,U,2),,) S IFN=+DFN
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
  D CHKEQ^XTMUNIT(RE(1,"ID"),+IFN,"Incorrect IFN")
  D CHKEQ^XTMUNIT(RE(1,"NAME"),$P(^DPT(IFN,0),U),"Incorrect name")
@@ -128,7 +118,10 @@ LSTPTRAN ;
  S PAR("ADMIFN")=AFN,PAR("DATE")=$$FMADD^XLFDT(DATE1,,1),PAR("TYPE")=11,PAR("WARD")=WARD1,PAR("ROOMBED")=BED1
  S %=$$TRANSF^DGPMAPI2(.RE,.PAR) S TFN=+RE
  ;invalid admission
- S %=$$LSTPTRAN^DGPMAPI7(.RE,DFN) S IFN=+DFN
+ S %=$$LSTPTRAN^DGPMAPI7(.RE,DFN,"A") S IFN=+DFN
+ D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM")
+ D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM")
+ S %=$$LSTPTRAN^DGPMAPI7(.RE,DFN,22222) S IFN=+DFN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: ADMNFND")
  D CHKEQ^XTMUNIT($P(RE(0),U),"ADMNFND","Expected error: ADMNFND")
  ;invalid patient
@@ -190,9 +183,6 @@ GETMASMT ;
  D CHKEQ^XTMUNIT(+RE("ASKFTY"),$P(^DG(405.2,IFN,0),U,6),"Incorrect askfty")
  D CHKEQ^XTMUNIT(+RE("ASKSPEC"),$P(^DG(405.2,IFN,0),U,5),"Incorrect askspec")
  D CHKEQ^XTMUNIT(+RE("CFADM"),+$P(^DG(405.2,IFN,"E"),U,2),"Incorrect cfadm")
- ;
- S %=$$ISDOM^DGPMAPI8(.RE,DFN,$$NOW^XLFDT()_U)
- D CHKEQ^XTMUNIT(RE,"","Unexpected error: "_$G(RE(0)))
  Q
 XTENT ;
  ;;LSTPROV;List providers
@@ -202,7 +192,6 @@ XTENT ;
  ;;LSTFCTY;List transfer facilities
  ;;LSTWARD;List wards
  ;;LSTWBED;List beds
- ;;LSTPATS;List patients
  ;;LSTTPATS;List transferable patients
  ;;LSTPADMS;List patient admissions
  ;;LSTPTRAN;List patient transfers
