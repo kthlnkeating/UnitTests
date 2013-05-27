@@ -1,4 +1,4 @@
-ZZDGPMAPI6 ;Unit Tests - Check-in API; 4/26/13
+ZZDGPMAPI6 ;Unit Tests - Check-in API; 5/22/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI6")
@@ -63,7 +63,7 @@ FTS ; TS transfer
  ; Ok
  S %=$$FTS^DGPMAPI6(.R,.PA),TSFN=R
  S CI0=+PA("DATE")_"^6^"_+PA("PATIENT")_"^42^^"
- S CI0=CI0_"^^"_+PA("PRYMPHY")_"^"_+PA("FTSPEC")_"^^^^^"_+AFN_"^^^^20^"_+PA("ATNDPHY")_"^^^0"
+ S CI0=CI0_"^^"_+PA("PRYMPHY")_"^"_+PA("FTSPEC")_"^^^^^"_+AFN_"^^^^20^"_+PA("ATNDPHY")_"^^^0^^"
  D CHKEQ^XTMUNIT(CI0,^DGPM(+R,0),"Incorrect movement")
  Q
 PROVCHG ; Provider change
@@ -83,7 +83,7 @@ PROVCHG ; Provider change
  ; Ok
  S %=$$PROVCH^DGPMAPI6(.R,.PA),PCFN=R
  S CI0=+PA("DATE")_"^6^"_+PA("PATIENT")_"^42^^"
- S CI0=CI0_"^^"_+PA("PRYMPHY")_"^"_+PA("FTSPEC")_"^^^^^"_+AFN_"^^^^20^"_+PA("ATNDPHY")_"^^^0"
+ S CI0=CI0_"^^"_+PA("PRYMPHY")_"^"_+PA("FTSPEC")_"^^^^^"_+AFN_"^^^^20^"_+PA("ATNDPHY")_"^^^0^^"
  D CHKEQ^XTMUNIT(CI0,^DGPM(+R,0),"Incorrect movement")
  Q
 UPDFTSE ; Update TS transfer
@@ -125,7 +125,7 @@ UPD ;
  S %=$$GETADM^DGPMAPI8(.ADMTT,AFN)
  X RTN
  S CI0=+ADGDT_"^6^"_+PA("PATIENT")_"^42^^^^"_+PA("PRYMPHY")_"^"
- S CI0=CI0_+$S($G(PC):+$G(FTSN),1:+PA("FTSPEC"))_"^^^^^"_+AFN_"^^^^20^"_+PA("ATNDPHY")_"^^^0"
+ S CI0=CI0_+$S($G(PC):+$G(FTSN),1:+PA("FTSPEC"))_"^^^^^"_+AFN_"^^^^20^"_+PA("ATNDPHY")_"^^^0^^"
  D CHKEQ^XTMUNIT(CI0,^DGPM(+TSFN,0),"Incorrect movement")
  Q
 DELFTS ; Delete TS transfer

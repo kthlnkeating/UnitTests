@@ -1,4 +1,4 @@
-ZZDGPMAPI4 ;Unit Tests - Check-in API; 4/26/13
+ZZDGPMAPI4 ;Unit Tests - Check-in API; 5/22/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI4")
@@ -68,7 +68,7 @@ LDGIN ; Check-in patient
  ; Ok 43
  S PA("LDGRSN")=1,%=$$LDGIN^DGPMAPI4(.R,.PA)
  S CI0=+PA("DATE")_"^4^"_+PA("PATIENT")_U_+PA("TYPE")_"^^"_+PA("WARD")_U
- S CI0=CI0_PA("ROOMBED")_"^^^^^^"_+R_"^^^^"_$P(^DG(405.1,+PA("TYPE"),0),U,3)_"^^^^0"
+ S CI0=CI0_PA("ROOMBED")_"^^^^^^"_+R_"^^^^"_$P(^DG(405.1,+PA("TYPE"),0),U,3)_"^^^^0^^"
  D CHKEQ^XTMUNIT(CI0,^DGPM(+R,0),"Expected error: RSNNFND")
  S %=$$DELLDGIN^DGPMAPI4(.R,R)
  ; Invalid facility
@@ -77,7 +77,7 @@ LDGIN ; Check-in patient
  ; Ok 44
  S %=$$LDGIN^DGPMAPI4(.R,.PA)
  S CI0=+PA("DATE")_"^4^"_+PA("PATIENT")_U_+PA("TYPE")_"^"_+PA("FCTY")
- S CI0=CI0_"^^^^^^^^^"_+R_"^^^^"_$P(^DG(405.1,+PA("TYPE"),0),U,3)_"^^^^0"
+ S CI0=CI0_"^^^^^^^^^"_+R_"^^^^"_$P(^DG(405.1,+PA("TYPE"),0),U,3)_"^^^^0^^"
  D CHKEQ^XTMUNIT(CI0,^DGPM(+R,0),"Incorrect movement")
  S %=$$DELLDGIN^DGPMAPI4(.R,R)
  S %=$$DELADM^DGPMAPI1(.R,RT)
@@ -119,7 +119,7 @@ UPDLDGIN ; Update check-in lodger
  S %=$$UPDLDGIN^DGPMAPI4(.R,.PA,AFN)
  D CHKEQ^XTMUNIT(R,1,"Unexpected error: "_$G(R(0)))
  S CI0=+PA("DATE")_"^4^"_+DFN_"^43^^"_+PA("WARD")_U_PA("ROOMBED")
- S CI0=CI0_"^^^^^^"_+AFN_"^^^^"_$P(^DG(405.1,43,0),U,3)_"^^^^0"
+ S CI0=CI0_"^^^^^^"_+AFN_"^^^^"_$P(^DG(405.1,43,0),U,3)_"^^^^0^^"
  D CHKEQ^XTMUNIT(CI0,^DGPM(+AFN,0),"Incorrect movement")
  ; Invalid facility
  S PA("TYPE")="44^"
@@ -127,7 +127,7 @@ UPDLDGIN ; Update check-in lodger
  ; Ok 44 from 43
  S %=$$UPDLDGIN^DGPMAPI4(.R,.PA,AFN)
  S CI0=+PA("DATE")_"^4^"_+DFN_"^44^"_+PA("FCTY")_"^"_+PA("WARD")_U_PA("ROOMBED")
- S CI0=CI0_"^^^^^^"_+AFN_"^^^^"_$P(^DG(405.1,44,0),U,3)_"^^^^0"
+ S CI0=CI0_"^^^^^^"_+AFN_"^^^^"_$P(^DG(405.1,44,0),U,3)_"^^^^0^^"
  D CHKEQ^XTMUNIT(CI0,^DGPM(+AFN,0),"Incorrect movement")
  ; Ok 43 from 44
  S PA("DATE")=$$NOW^XLFDT(),PA("LDGCOMM")="Check-in diagnosis",PA("LDGRSN")=1
@@ -142,7 +142,7 @@ UPDLDGIN ; Update check-in lodger
  S PA("WARD")=WARD1,PA("ROOMBED")=BED1
  S %=$$UPDLDGIN^DGPMAPI4(.R,.PA,AFN)
  S CI0=+PA("DATE")_"^4^"_+DFN_"^43^^"_+PA("WARD")_U_PA("ROOMBED")
- S CI0=CI0_"^^^^^^"_+AFN_"^^^^"_$P(^DG(405.1,43,0),U,3)_"^^^^0"
+ S CI0=CI0_"^^^^^^"_+AFN_"^^^^"_$P(^DG(405.1,43,0),U,3)_"^^^^0^^"
  D CHKEQ^XTMUNIT(CI0,^DGPM(+AFN,0),"Incorrect movement")
  Q
 DELLDGIN ; Delete lodger check-in
