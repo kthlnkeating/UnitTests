@@ -1,4 +1,4 @@
-ZZRGUSD6 ;RGI/VSL Unit Tests - Team API; 5/24/13
+ZZRGUSD6 ;RGI/VSL Unit Tests - Team API; 5/31/13
  ;;1.0;UNIT TEST;;05/28/2012;
  Q:$T(^SDMAPI1)=""
  TSTART
@@ -160,6 +160,28 @@ DTIME ; Check date time param
  S %=$$DTIME^SDCHK(.RE,3130524.0801,"SD",1)
  D CHKEQ^XTMUNIT(%,1,"3130524.0801")
  Q
+GETHOL ; Check holiday
+ N RE
+ S %=$$GETHOL^SDMAPI4(.RE,)
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^INVPARAM","Expected: INVPARAM SD")
+ S %=$$GETHOL^SDMAPI4(.RE,"AA")
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^INVPARAM","Expected: INVPARAM SD")
+ S %=$$GETHOL^SDMAPI4(.RE,"31305")
+ D CHKEQ^XTMUNIT(RE_U_$P(RE(0),U),"0^INVPARAM","Expected: INVPARAM SD")
+ S SD=$$DT^XLFDT()
+ ;not a holiday
+ S %=$$GETHOL^SDMAPI4(.RE,SD)
+ D CHKEQ^XTMUNIT(RE,0,"Incorrect return")
+ ;holiday
+ S IENS="?+2,"
+ S IENS(2)=+SD
+ S HOL(40.5,IENS,.01)=SD
+ S HOL(40.5,IENS,2)="Today is holiday"
+ D UPDATE^DIE("","HOL","IENS","R")
+ S %=$$GETHOL^SDMAPI4(.RE,SD)
+ D CHKEQ^XTMUNIT(RE,1,"UnExpected: INVPARAM SD")
+ D CHKEQ^XTMUNIT(RE($$DT^XLFDT()),$$DT^XLFDT()_U_"Today is holiday","Incorrect holiday")
+ Q
 XTENT ;
  ;;GETEAM;Get team
  ;;LSTAPOSN;Get active positions
@@ -167,3 +189,4 @@ XTENT ;
  ;;LSTAPOS;Get active positions
  ;;GETAPTS;Get patient appointments
  ;;DTIME;Check date time
+ ;;GETHOL;Check holiday

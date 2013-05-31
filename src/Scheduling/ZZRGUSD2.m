@@ -1,4 +1,4 @@
-ZZRGUSD2 ;Unit Tests - Clinic API; 4/19/13
+ZZRGUSD2 ;Unit Tests - Clinic API; 5/31/13
  ;;1.0;UNIT TEST;;05/28/2012;
  Q:$T(^SDMAPI1)=""
  TSTART
@@ -79,7 +79,7 @@ NOSHOW ;
  D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
  S SC0=+DFN_"^"_+LEN_"^^"_RSN_"^^"_DUZ_"^"_DT_"^^^"
  D CHKEQ^XTMUNIT(^SC(+SC,"S",+SD,1,1,0),SC0,"Invalid clinic appointment 0 node")
- S DPT0=+SC_"^N^^^^^3^^^^^"_DUZ_"^^"_NOW_"^^"_+TYPE_"^"_+SC2_"^"_DUZ_"^"_DT_"^^^^^0^"_NXT_"^3"
+ S DPT0=+SC_"^N^^^^^3^^^^^"_DUZ_"^^"_+$E(NOW,1,12)_"^^"_+TYPE_"^"_+SC2_"^"_DUZ_"^"_DT_"^^^^^0^"_NXT_"^3"
  D CHKEQ^XTMUNIT(^DPT(+DFN,"S",+SD,0),DPT0,"Invalid patient appointment - 0 node")
  I $P(^DPT(+DFN,"S",+SD,0),U,2)="N" D
  . S NOW=$$NOW^XLFDT(),%=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD,"PC",CRSN,"Cancellation test remarks")
@@ -177,7 +177,7 @@ CANCEL ;
  S NOW=$$NOW^XLFDT(),%=$$CANCEL^SDMAPI2(.RETURN,DFN,SC,SD,"PC",CRSN)
  S SC0=+DFN_"^"_+LEN_"^^"_+CRSN_"^^"_DUZ_"^"_DT_"^^^"
  D CHKEQ^XTMUNIT($G(^SC(+SC,"S",+SD,1,1)),"","Invalid clinic appointment - 0 node")
- S DPT0=+SC_"^PC^^^^^3^^^^^"_DUZ_"^^"_+$J($$NOW^XLFDT(),4,2)_"^"_+CRSN_"^"_+TYPE_"^^"_DUZ_"^"_DT_"^^^^^0^"_NXT_"^3"
+ S DPT0=+SC_"^PC^^^^^3^^^^^"_DUZ_"^^"_+$E($$NOW^XLFDT(),1,12)_"^"_+CRSN_"^"_+TYPE_"^^"_DUZ_"^"_DT_"^^^^^0^"_NXT_"^3"
  D CHKEQ^XTMUNIT(^DPT(+DFN,"S",+SD,0),DPT0,"Invalid patient appointment - 0 node")
  ;
  S $P(^GMR(123,CONS,0),U,12)=8

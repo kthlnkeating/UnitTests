@@ -1,4 +1,4 @@
-ZZRGUSD5 ;RGI/CBR Unit Tests - Vocabulary API; 4/16/13
+ZZRGUSD5 ;RGI/CBR Unit Tests - Vocabulary API; 5/31/13
  ;;1.0;UNIT TEST;;05/28/2012;
  Q:$T(^SDMAPI1)=""
  TSTART
@@ -162,9 +162,13 @@ DELCO ;
  S OE=RETURN("OE") K RETURN
  S $P(^SCE(OE,0),U,8)=3,^SCE(OE+1,0)=^SCE(OE,0),$P(^SCE(OE+1,0),U,6)=OE
  S ^SCE("APAR",OE,OE+1)=""
+ ; Invalid SDOE param
+ S %=$$GETCHLD^SDMAPI4(.R,"AAA")
+ D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^INVPARAM","Expected error: INVPARAM")
+ ; Outpatient encounter not found
+ S %=$$GETCHLD^SDMAPI4(.R,SDOE+999)
+ D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^OENFND","Expected error: OENFND")
  S %=$$GETCHLD^SDMAPI4(.RETURN,OE)
- D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
- S %=$$DELCOPC^SDMAPI4(.RETURN,OE,,"PCE")
  D CHKEQ^XTMUNIT(RETURN,1,"Unxpected error: "_$G(RETURN(0)))
  Q
 MAKECAN ;

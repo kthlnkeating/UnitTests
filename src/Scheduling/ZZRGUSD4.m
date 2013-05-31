@@ -1,4 +1,4 @@
-ZZRGUSD4 ;Unit Tests - Clinic API; 5/21/13
+ZZRGUSD4 ;Unit Tests - Clinic API; 5/31/13
  ;;1.0;UNIT TEST;;05/28/2012;
  Q:$T(^SDMAPI1)=""
  TSTART
@@ -159,6 +159,14 @@ CHKSTYP ; Check appt subtype
  Q
 LSTASTYP ;Check appt subtype
  N RETURN,%
+ ;Invalid param type
+ S %=$$LSTASTYP^SDMAPI5(.RETURN,,,,) ; List appointment subtypes
+ D CHKEQ^XTMUNIT(RETURN,0,"Unxpected error: "_$G(RETURN(0)))
+ D CHKEQ^XTMUNIT(RETURN(0),"INVPARAM^Invalid parameter value - TYPE^1","Expected error: INVPARAM")
+ ; Undefined type
+ S %=$$LSTASTYP^SDMAPI5(.RETURN,,,,99999) ; List appointment subtypes
+ D CHKEQ^XTMUNIT(RETURN,0,"Unxpected error: "_$G(RETURN(0)))
+ D CHKEQ^XTMUNIT(RETURN(0),"TYPNFND^Appointment type not found.^1","Expected error: TYPNFND")
  S %=$$LSTASTYP^SDMAPI5(.RETURN,,,,TYPE) ; List appointment subtypes
  D CHKEQ^XTMUNIT(RETURN(0),"2^*^0^","Invalid 0 node")
  D CHKEQ^XTMUNIT(RETURN(1,"ID"),1,"Invalid appt subtype ID")
