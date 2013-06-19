@@ -1,4 +1,4 @@
-ZZDGPMAPI6 ;Unit Tests - Check-in API; 5/27/13
+ZZDGPMAPI6 ;Unit Tests - Check-in API; 6/19/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI6")
@@ -42,7 +42,7 @@ FTS ; TS transfer
  ; Invalid admission IFN
  S PA("DATE")=$$FMADD^XLFDT(ADMDT,,-2),%=$$FTS^DGPMAPI6(.R,.PA)
  D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^INVPARM","Expected error: INVPARM")
- D CHKEQ^XTMUNIT($G(R(0))["PARAM('ADMIFN')",1,"Invalid admission parameter")
+ D CHKEQ^XTMUNIT($G(R(0))["PARAM(""ADMIFN"")",1,"Invalid admission parameter")
  ;not before admission
  S PA("ADMIFN")=AFN_U,PA("DATE")=$$FMADD^XLFDT(ADMDT,-4) X RTN
  D CHKEQ^XTMUNIT($P($G(RE(0)),U),"TRANBADM","Expected error: TRANBADM")
@@ -74,7 +74,7 @@ PROVCHG ; Provider change
  ; Invalid admission IFN
  S PA("DATE")=$$FMADD^XLFDT(ADMDT,,1.3),%=$$PROVCH^DGPMAPI6(.R,.PA)
  D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^INVPARM","Expected error: INVPARM")
- D CHKEQ^XTMUNIT($G(R(0))["PARAM('ADMIFN')",1,"Invalid admission parameter")
+ D CHKEQ^XTMUNIT($G(R(0))["PARAM(""ADMIFN"")",1,"Invalid admission parameter")
  S PA("ADMIFN")=AFN_U
  ; Invalid attender
  D CHKATD^ZZDGPMSE(RTN,.PA)

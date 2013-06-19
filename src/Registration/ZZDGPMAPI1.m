@@ -1,4 +1,4 @@
-ZZDGPMAPI1 ;Unit Tests - Admission API; 5/22/13
+ZZDGPMAPI1 ;Unit Tests - Admission API; 6/19/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI1")
@@ -26,7 +26,7 @@ ADMIT ;
  S PAR("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),,-6)_U X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM DATE")
  D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM")
- D CHKEQ^XTMUNIT($P(RE(0),U,2)["PARAM('FDEXC')",1,"Expected error: INVPARM DATE")
+ D CHKEQ^XTMUNIT($P(RE(0),U,2)["PARAM(""FDEXC"")",1,"Expected error: INVPARM DATE")
  S PAR("FDEXC")="1^"
  ;Invalid admitting regulation
  D CHKAREG^ZZDGPMAPI1(RTN,.PAR)
@@ -47,6 +47,8 @@ ADMIT ;
  D CHKPRYM^ZZDGPMSE(RTN,.PAR)
  ;Invalid source of admission
  D CHKASRC^ZZDGPMAPI1(RTN,.PAR)
+ ;Invalid eligibility
+ D CHKELIG^ZZDGPMAPI1(RTN,.PAR)
  ;Admit
  S PAR("DIAG",1)="Diag 1",PAR("DIAG",3)="Diag 3"
  S %=$$ADMIT^DGPMAPI1(.RE,.PAR)
@@ -75,6 +77,17 @@ CHKASRC(RTN,PAR,UPD) ;
  D CHKEQ^XTMUNIT(RE,0,"Expected error: ASRCNFND")
  D CHKEQ^XTMUNIT($P(RE(0),U),"ASRCNFND","Expected error: ASRCNFND")
  S PAR("ADMSRC")=($P(^DIC(45.1,0),U,3)-$G(UPD))_U
+ Q
+CHKELIG(RTN,PAR,UPD) ;
+ ;invalid param
+ S PAR("ELIGIB")="AA" X RTN
+ D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM")
+ D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM")
+ S ^DPT(+DFN,.36)="9"
+ S PAR("ELIGIB")=5 X RTN
+ D CHKEQ^XTMUNIT(RE,0,"Expected error: PATENFND")
+ D CHKEQ^XTMUNIT($P(RE(0),U),"PATENFND","Expected error: PATENFND")
+ S PAR("ELIGIB")=9
  Q
 UPDADM ;
  K PAR,RE,DGQUIET
@@ -110,6 +123,8 @@ UPDADM ;
  D CHKPRYM^ZZDGPMSE(RTN,.PAR) M PART=PAR K PAR
  ;Invalid source of admission
  D CHKASRC^ZZDGPMAPI1(RTN,.PAR,1) M PART=PAR K PAR
+ ;Invalid eligibility
+ D CHKELIG^ZZDGPMAPI1(RTN,.PAR,1) M PART=PAR K PAR
  ;Ok
  S PART("TYPE")="2^",PART("FDEXC")="0^",PART("PRYMPHY")="37^"
  S %=$$UPDADM^DGPMAPI1(.RE,.PART,AFN)
@@ -145,7 +160,7 @@ CHKAREG(RTN,PAR,UPD) ;
  D CHKEQ^XTMUNIT(RE,$S(+$G(UPD)=1:1,1:0),"Expected error: INVPARM")
  I +$G(UPD)=0 D
  . D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM ADMREG")
- . D CHKEQ^XTMUNIT($P(RE(0),U,2)["PARAM('ADMREG')",1,"Expected error: INVPARM ADMREG")
+ . D CHKEQ^XTMUNIT($P(RE(0),U,2)["PARAM(""ADMREG"")",1,"Expected error: INVPARM ADMREG")
  ;admitting regulation not found
  S PAR("ADMREG")=($P(^DIC(43.4,0),U,3)+1)_U X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: AREGNFND")

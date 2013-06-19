@@ -1,4 +1,4 @@
-ZZDGPMAPI2 ;Unit Tests - Transfer API; 5/27/13
+ZZDGPMAPI2 ;Unit Tests - Transfer API; 6/19/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI2")
@@ -31,7 +31,7 @@ TRANSF ;
  S PAR("DATE")=ADMDT_U X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM ADMIFN")
  D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM")
- D CHKEQ^XTMUNIT($P(RE(0),U,2)["PARAM('ADMIFN')",1,"Expected error: INVPARM ADMIFN")
+ D CHKEQ^XTMUNIT($P(RE(0),U,2)["PARAM(""ADMIFN"")",1,"Expected error: INVPARM ADMIFN")
  S PAR("ADMIFN")="aa",PAR("DATE")=$$FMADD^XLFDT(+PAR("DATE"),,-1) X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM AFN")
  D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM")
@@ -199,7 +199,7 @@ CHKFCTY(RTN,PAR,UPD,REQ) ;
  . X RTN
  . D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM")
  . D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM FCTY")
- . D CHKEQ^XTMUNIT($P(RE(0),U,2)["PARAM('FCTY')",1,"Expected error: INVPARM FCTY")
+ . D CHKEQ^XTMUNIT($P(RE(0),U,2)["PARAM(""FCTY"")",1,"Expected error: INVPARM FCTY")
  ;transfer facility not found
  S PAR("FCTY")=($P(^DIC(4,0),U,3)+10)_U X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: TFCNFND")

@@ -1,4 +1,4 @@
-ZZDGPMAPI7 ;Unit Tests - Clinic API; 5/27/13
+ZZDGPMAPI7 ;Unit Tests - Clinic API; 6/19/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI7")
@@ -45,7 +45,7 @@ LSTFTS ;
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
  D CHKEQ^XTMUNIT(RE(1,"ID"),IFN,"Incorrect IFN")
  D CHKEQ^XTMUNIT(RE(1,"NAME"),$P(^DIC(45.7,IFN,0),U),"Incorrect name")
- D CHKEQ^XTMUNIT(RE(1,"SPEC"),$P(^DIC(42.4,$P(^DIC(45.7,IFN,0),U,2),0),U),"Incorrect specialty")
+ D CHKEQ^XTMUNIT(RE(1,"SPEC"),$P(^DIC(45.7,IFN,0),U,2)_U_$P(^DIC(42.4,$P(^DIC(45.7,IFN,0),U,2),0),U),"Incorrect specialty")
  Q
 LSTADSRC ;
  S IFN=$P(^DIC(45.1,0),U,3),NAME=$P(^DIC(45.1,IFN,0),U)
@@ -184,6 +184,22 @@ GETMASMT ;
  D CHKEQ^XTMUNIT(+RE("ASKSPEC"),$P(^DG(405.2,IFN,0),U,5),"Incorrect askspec")
  D CHKEQ^XTMUNIT(+RE("CFADM"),+$P(^DG(405.2,IFN,"E"),U,2),"Incorrect cfadm")
  Q
+LSTPELIG ;
+ N RE
+ S %=$$LSTPELIG^DGPMAPI9(.RE,"AA")
+ D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM")
+ D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM")
+ S %=$$LSTPELIG^DGPMAPI9(.RE,DFN+99)
+ D CHKEQ^XTMUNIT(RE,0,"Expected error: PATNFND")
+ D CHKEQ^XTMUNIT($P(RE(0),U),"PATNFND","Expected error: PATNFND")
+ S %=$$LSTPELIG^DGPMAPI9(.RE,DFN)
+ D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
+ D CHKEQ^XTMUNIT(+$G(RE(1)),0,"Incorrect eligibility")
+ S ^DPT(+DFN,.36)="9",^DPT(+DFN,"E",15,0)="15"
+ S %=$$LSTPELIG^DGPMAPI9(.RE,DFN)
+ D CHKEQ^XTMUNIT(RE(1),"9^SHARING AGREEMENT","Incorrect primary eligibility")
+ D CHKEQ^XTMUNIT(RE(2),"15^HOUSEBOUND","Incorrect primary eligibility")
+ Q
 XTENT ;
  ;;LSTPROV;List providers
  ;;LSTADREG;List admitting regulations
@@ -195,6 +211,7 @@ XTENT ;
  ;;LSTTPATS;List transferable patients
  ;;LSTPADMS;List patient admissions
  ;;LSTPTRAN;List patient transfers
+ ;;LSTPELIG;List patient eligibility
  ;;GETPAT;;Get patient
  ;;GETMVT;;Get movement
  ;;GETMVTT;;Get movement type

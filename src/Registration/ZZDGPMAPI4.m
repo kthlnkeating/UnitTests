@@ -1,4 +1,4 @@
-ZZDGPMAPI4 ;Unit Tests - Check-in API; 5/27/13
+ZZDGPMAPI4 ;Unit Tests - Check-in API; 6/19/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI4")
@@ -32,7 +32,7 @@ LDGIN ; Check-in patient
  ; Invalid param patient
  S %=$$LDGIN^DGPMAPI4(.R,.PA)
  D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^INVPARM","Expected error: INVPARM")
- D CHKEQ^XTMUNIT(R(0)["PARAM('PATIENT')",1,"Invalid patient param")
+ D CHKEQ^XTMUNIT(R(0)["PARAM(""PATIENT"")",1,"Invalid patient param")
  ; Patient not found
  S PA("PATIENT")=DFN+100,%=$$LDGIN^DGPMAPI4(.R,.PA)
  D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^PATNFND","Expected error: PATNFND")
@@ -61,7 +61,7 @@ LDGIN ; Check-in patient
  ; Invalid reason
  S %=$$LDGIN^DGPMAPI4(.R,.PA)
  D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^INVPARM","Expected error: INVPARM")
- D CHKEQ^XTMUNIT(R(0)["PARAM('LDGRSN')",1,"Invalid reason param")
+ D CHKEQ^XTMUNIT(R(0)["PARAM(""LDGRSN"")",1,"Invalid reason param")
  ; Invalid reason
  S PA("LDGRSN")=99999,%=$$LDGIN^DGPMAPI4(.R,.PA)
  D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^RSNNFND","Expected error: RSNNFND")

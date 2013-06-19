@@ -1,4 +1,4 @@
-ZZDGPMAPI5 ;Unit Tests - Check-in API; 5/27/13
+ZZDGPMAPI5 ;Unit Tests - Check-in API; 6/19/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI5")
@@ -32,7 +32,7 @@ LDGOUT ;
  ; Invalid param check-in IFN
  S %=$$LDGOUT^DGPMAPI5(.R,.PA)
  D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^INVPARM","Expected error: INVPARM")
- D CHKEQ^XTMUNIT(R(0)["PARAM('ADMIFN')",1,"Invalid check-in parameter")
+ D CHKEQ^XTMUNIT(R(0)["PARAM(""ADMIFN"")",1,"Invalid check-in parameter")
  ; Check-in movement not found
  S PA("ADMIFN")=99999,%=$$LDGOUT^DGPMAPI5(.R,.PA)
  D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^MVTNFND","Expected error: MVTNFND")
@@ -45,7 +45,7 @@ LDGOUT ;
  ; Invalid disposition param
  S PA("DATE")=$$FMADD^XLFDT($$NOW^XLFDT(),-0.5),%=$$LDGOUT^DGPMAPI5(.R,.PA)
  D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^INVPARM","Expected error: INVPARM")
- D CHKEQ^XTMUNIT(R(0)["PARAM('LDGDISP')",1,"Invalid check-in parameter")
+ D CHKEQ^XTMUNIT(R(0)["PARAM(""LDGDISP"")",1,"Invalid check-in parameter")
  ; Invalid disposition
  S PA("LDGDISP")="C^C",%=$$LDGOUT^DGPMAPI5(.R,.PA)
  D CHKEQ^XTMUNIT(R_U_$P($G(R(0)),U),"0^INVPARM","Expected error: INVPARM")

@@ -1,4 +1,4 @@
-ZZDGPMSE ;Unit Tests - Clinic API; 5/14/13
+ZZDGPMSE ;Unit Tests - Clinic API; 6/19/13
  ;;1.0;UNIT TEST;;05/28/2012;
 ADDCLN(NAME) ; Add new clinic
  N IEN
@@ -121,7 +121,7 @@ UPD(RETURN,FILE,IFN,PARAMS) ; Update ward
 CHKPAT(RTN,PAR,PNAME) ;
  ;Invalid patient param
  N PN X RTN
- S PN=$S('$D(PNAME):"PARAM('PATIENT')",1:PNAME)
+ S PN=$S('$D(PNAME):"PARAM(""PATIENT"")",1:PNAME)
  D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM")
  D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM PATIENT")
  D CHKEQ^XTMUNIT($P(RE(0),U,2)[PN,1,"Expected error: INVPARM PATIENT")
@@ -140,7 +140,7 @@ CHKTYPE(RTN,PAR,UPD) ;
  . X RTN
  . D CHKEQ^XTMUNIT(RE,$S(+$G(UPD)=1:1,1:0),"Expected error: INVPARM")
  . D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM TYPE")
- . D CHKEQ^XTMUNIT($P(RE(0),U,2)["PARAM('TYPE')",1,"Expected error: INVPARM TYPE")
+ . D CHKEQ^XTMUNIT($P(RE(0),U,2)["PARAM(""TYPE"")",1,"Expected error: INVPARM TYPE")
  ;movement type not found
  S PAR("TYPE")=($P(^DG(405.1,0),U,3)+1)_U X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: MVTTNFND")
@@ -175,7 +175,7 @@ CHKATD(RTN,PAR,UPD,REQ) ;
  . X RTN
  . D CHKEQ^XTMUNIT(RE,$S(+$G(UPD)=1:1,1:0),"Expected error: INVPARM")
  . D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM FTSPEC")
- . D CHKEQ^XTMUNIT($P(RE(0),U,2)["PARAM('ATNDPHY')",1,"Expected error: INVPARM FTSPEC")
+ . D CHKEQ^XTMUNIT($P(RE(0),U,2)["PARAM(""ATNDPHY"")",1,"Expected error: INVPARM FTSPEC")
  ;attender not found
  S PAR("ATNDPHY")=($P(^VA(200,0),U,3)+1)_U X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: PROVNFND")
@@ -192,7 +192,7 @@ CHKFTS(RTN,PAR,UPD,REQ,DATE) ;
  . X RTN
  . D CHKEQ^XTMUNIT(RE,$S(+$G(UPD)=1:1,1:0),"Expected error: INVPARM")
  . D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM FTSPEC")
- . D CHKEQ^XTMUNIT($P(RE(0),U,2)["PARAM('FTSPEC')",1,"Expected error: INVPARM FTSPEC")
+ . D CHKEQ^XTMUNIT($P(RE(0),U,2)["PARAM(""FTSPEC"")",1,"Expected error: INVPARM FTSPEC")
  ;facility treating specialty not found
  S PAR("FTSPEC")=($P(^DIC(45.7,0),U,3)+1)_U X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: FTSNFND")
@@ -239,7 +239,7 @@ CHKWARD(RTN,PAR,WFN,UPD) ;
  . X RTN
  . D CHKEQ^XTMUNIT(RE,$S(+$G(UPD)=1:1,1:0),"Expected error: INVPARM")
  . D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM WARD")
- . D CHKEQ^XTMUNIT($P(RE(0),U,2)["PARAM('WARD')",1,"Expected error: INVPARM WARD")
+ . D CHKEQ^XTMUNIT($P(RE(0),U,2)["PARAM(""WARD"")",1,"Expected error: INVPARM WARD")
  ;ward not found
  S PAR("WARD")=($P(^DIC(42,0),U,3)+1)_U X RTN
  D CHKEQ^XTMUNIT(RE,0,"Expected error: WRDNFND")

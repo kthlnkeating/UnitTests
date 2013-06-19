@@ -1,4 +1,4 @@
-ZZDGPMAPI3 ;Unit Tests - Discharge API; 5/27/13
+ZZDGPMAPI3 ;Unit Tests - Discharge API; 6/19/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI3")
@@ -25,7 +25,7 @@ DSCH ;
  S RTN="S %=$$DISCH^DGPMAPI3(.RE,.DIS)"
  S %=$$DISCH^DGPMAPI3(.RE,.DIS)
  D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM")
- D CHKEQ^XTMUNIT($P(RE(0),U,2)["'ADMIFN'",1,"Expected error: INVPARM")
+ D CHKEQ^XTMUNIT($P(RE(0),U,2)["ADMIFN",1,"Expected error: INVPARM")
  ; invalid param admission
  S DIS("ADMIFN")="not no",%=$$DISCH^DGPMAPI3(.RE,.DIS)
  D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM")
@@ -174,7 +174,7 @@ CONTASH ; Continued ASIH
  S DFN0=+PAR("DATE")_U_"3"_U_+DFN_"^35^^^^^^^^^^"_LMVT("ADMIFN")_"^^^^46^^^^1"
  D CHKEQ^XTMUNIT(AFN2,^DGPM(LMVT("ADMIFN"),0),"Incorrect admission node")
  D CHKEQ^XTMUNIT(DFN0,^DGPM(DISCH,0),"Incorrect discharge node")
- S TFN=$O(^DGPM("APTT2",26,+PAR("DATE")+0.0000002,0))
+ S TFN=$O(^DGPM("APTT2",+DFN,+PAR("DATE")+0.0000002,0))
  S TFN0=+PAR("DATE")_U_"2"_U_+DFN_"^22^"_+PAR("FCTY")_"^^^^^^^^^"_AFN_"^^^45^^^^2"
  D CHKEQ^XTMUNIT(TFN0,^DGPM(TFN,0),"Incorrect transfer node")
  ; cannot delete while asih discharge
