@@ -1,4 +1,4 @@
-ZZRGUSD5 ;RGI/CBR Unit Tests - Vocabulary API; 5/31/13
+ZZRGUSD5 ;RGI/CBR Unit Tests - Vocabulary API; 7/3/13
  ;;1.0;UNIT TEST;;05/28/2012;
  Q:$T(^SDMAPI1)=""
  TSTART
@@ -55,16 +55,6 @@ LSTSRT ;
  D CHKEQ^XTMUNIT($G(R(5)),"M^MULTIPLE APPT. BOOKING")
  D CHKEQ^XTMUNIT($G(R(6)),"A^AUTO REBOOK")
  D CHKEQ^XTMUNIT($G(R(7)),"O^OTHER THAN 'NEXT AVA.' APPT.")
- Q
-LSTSBCTG ;
- Q:$T(^DGSAAPI)=""
- D SUBTYP^ZZRGUSDC
- N R,%
- S %=$$LSTSBCTG^DGSAAPI(.R)
- D CHKEQ^XTMUNIT(%,1,"Unexpected error: "_$G(R(0)))
- D CHKEQ^XTMUNIT($G(R(0)),2)
- D CHKEQ^XTMUNIT($G(R(1)),"1^Sharing 1")
- D CHKEQ^XTMUNIT($G(R(2)),"2^Sharing 2")
  Q
 PTFU ;
  N %,RETURN
@@ -236,14 +226,40 @@ DISCH ;
  S %=$$DISCH^SDMAPI3(.RE,DFN,SD,,RSN)
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
  Q
+ADDASC ; Add sharing agreement category
+ N RE,TYPE,SUBCAT,STAT
+ ;Invalid param TYPE
+ S %=$$ADDASC^SDMAPI5(.RE),TYPE=9999
+ D CHKEQ^XTMUNIT(RE_U_$P($G(RE(0)),U),"0^INVPARAM","Expected error: INVPARAM")
+ ;Appointment type not found
+ S %=$$ADDASC^SDMAPI5(.RE,TYPE_U),TYPE=1
+ D CHKEQ^XTMUNIT(RE_U_$P($G(RE(0)),U),"0^TYPNFND","Expected error: TYPNFND")
+ ;Appointment type inactive
+ S %=$$ADDASC^SDMAPI5(.RE,10)
+ D CHKEQ^XTMUNIT(RE_U_$P($G(RE(0)),U),"0^TYPINAC","Expected error: TYPINAC")
+ ;Invalid param SUBCAT
+ S %=$$ADDASC^SDMAPI5(.RE,TYPE_U)
+ D CHKEQ^XTMUNIT(RE_U_$P($G(RE(0)),U),"0^INVPARM","Expected error: INVPARM")
+ ;Sub-category not found
+ S %=$$ADDASC^SDMAPI5(.RE,TYPE_U,9999)
+ D CHKEQ^XTMUNIT(RE_U_$P($G(RE(0)),U),"0^SASCNFND","Expected error: SASCNFND")
+ ;Invalid param STATUS
+ S %=$$ADDSASC^DGSAAPI(.RE,"Category 1"),SASC=+RE
+ S %=$$ADDASC^SDMAPI5(.RE,TYPE_U,SASC_U,2)
+ D CHKEQ^XTMUNIT(RE_U_$P($G(RE(0)),U),"0^INVPARM","Expected error: INVPARM")
+ ;Ok
+ S %=$$ADDASC^SDMAPI5(.RE,TYPE_U,SASC_U,1_U)
+ D CHKEQ^XTMUNIT(RE>0,1,"Unexpected error: "_$G(RE(0)))
+ D CHKEQ^XTMUNIT(+TYPE_";SD(409.1,^"_+SASC_"^1",$G(^DG(35.1,+RE,0)),"Incorrect name")
+ Q
 XTENT ;
  ;;LSTAPPST;List appointment statuses
  ;;LSTHLTP;List hospital location types
  ;;LSTSRT;List scheduling request types
- ;;LSTSBCTG;List sharing agreement sub-categories
  ;;PTFU;;Follow-up
  ;;HASPEND;;Has pending apptS
  ;;CHECKO;Check out appointment
  ;;DELCO;Delete check out
  ;;MAKECAN;Make & Cancel
  ;;DISCH;Discharge from clinic
+ ;;ADDASC;Add sharing agreement category

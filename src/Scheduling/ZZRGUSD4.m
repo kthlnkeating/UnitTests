@@ -1,4 +1,4 @@
-ZZRGUSD4 ;Unit Tests - Clinic API; 5/31/13
+ZZRGUSD4 ;Unit Tests - Clinic API; 7/3/13
  ;;1.0;UNIT TEST;;05/28/2012;
  Q:$T(^SDMAPI1)=""
  TSTART
@@ -131,16 +131,18 @@ CHKTYP ; Check appt type
  Q
 CHKSTYP ; Check appt subtype
  N RETURN,%
- D SUBTYP^ZZRGUSDC
+ D SUBTYP^ZZRGUSDC(9)
  ; Appointment subtype not found or inactive
  S SD0=$$NOW^XLFDT(),SD0=$E(SD0,1,12)+0.0001
- S %=$$MAKEUS^SDMAPI2(.RETURN,DFN,SC,SD0,9,3,)
+ S %=$$MAKEUS^SDMAPI2(.RETURN,DFN,SC,SD0,9,3)
  D CHKEQ^XTMUNIT(RETURN,0,"Unxpected error: "_$G(RETURN(0)))
+ D CHKEQ^XTMUNIT(RETURN(0),"STYPNFND^Appointment subtype not found or inactive.^1","Expected error: STYPNFND")
+ S %=$$MAKEUS^SDMAPI2(.RETURN,DFN,SC,SD0,9,1)
  D CHKEQ^XTMUNIT(RETURN(0),"STYPNFND^Appointment subtype not found or inactive.^1","Expected error: STYPNFND")
  ; Unscheduled appointment subtype
  S SDD=DT_".08",SDD=SDD_U_$$FMTE^XLFDT(SDD)
  S %=$$MAKEUS^SDMAPI2(.RETURN,DFN,SC,SDD,TYPE,STYP)
- D CHKEQ^XTMUNIT(RETURN,1,"Unexpected error: ")
+ D CHKEQ^XTMUNIT(RETURN,1,"Unexpected error: "_$G(RETURN(0)))
  S SC0=+DFN_"^"_+LEN_"^^^^"_DUZ_"^"_DT
  D CHKEQ^XTMUNIT(^SC(+SC,"S",+SDD,1,1,0),SC0,"Invalid clinic appointment - 0 node")
  S DPT0=+SC_"^^^^^^4^^^^^^^^^"_+TYPE_"^^"_DUZ_"^"_DT_"^^^^^"_+STYP_"^W^0"
@@ -160,21 +162,30 @@ CHKSTYP ; Check appt subtype
 LSTASTYP ;Check appt subtype
  N RETURN,%
  ;Invalid param type
- S %=$$LSTASTYP^SDMAPI5(.RETURN,,,,) ; List appointment subtypes
+ S %=$$LSTASTYP^SDMAPI5(.RETURN) ; List appointment subtypes
  D CHKEQ^XTMUNIT(RETURN,0,"Unxpected error: "_$G(RETURN(0)))
  D CHKEQ^XTMUNIT(RETURN(0),"INVPARAM^Invalid parameter value - TYPE^1","Expected error: INVPARAM")
  ; Undefined type
- S %=$$LSTASTYP^SDMAPI5(.RETURN,,,,99999) ; List appointment subtypes
+ S %=$$LSTASTYP^SDMAPI5(.RETURN,99999) ; List appointment subtypes
  D CHKEQ^XTMUNIT(RETURN,0,"Unxpected error: "_$G(RETURN(0)))
  D CHKEQ^XTMUNIT(RETURN(0),"TYPNFND^Appointment type not found.^1","Expected error: TYPNFND")
- S %=$$LSTASTYP^SDMAPI5(.RETURN,,,,TYPE) ; List appointment subtypes
- D CHKEQ^XTMUNIT(RETURN(0),"2^*^0^","Invalid 0 node")
- D CHKEQ^XTMUNIT(RETURN(1,"ID"),1,"Invalid appt subtype ID")
- D CHKEQ^XTMUNIT(RETURN(1,"NAME"),"Sharing 1","Invalid appt subtype NAME")
- D CHKEQ^XTMUNIT(RETURN(1,"STATUS"),"YES","Invalid appt subtype NAME")
- D CHKEQ^XTMUNIT(RETURN(2,"ID"),2,"Invalid appt subtype ID")
- D CHKEQ^XTMUNIT(RETURN(2,"NAME"),"Sharing 2","Invalid appt subtype NAME")
- D CHKEQ^XTMUNIT(RETURN(2,"STATUS"),"YES","Invalid appt subtype NAME")
+ S %=$$LSTASTYP^SDMAPI5(.RETURN,TYPE) ; List appointment subtypes
+ D CHKEQ^XTMUNIT(RETURN(0),"2","Invalid 0 node")
+ D CHKEQ^XTMUNIT(RETURN(1,"ID"),1,"Invalid appt subtype ID 1")
+ D CHKEQ^XTMUNIT(RETURN(1,"SUBCAT"),"1^Category 1","Invalid sub-categ 1")
+ D CHKEQ^XTMUNIT(RETURN(1,"STATUS"),"^","Invalid status 1")
+ D CHKEQ^XTMUNIT(RETURN(2,"ID"),2,"Invalid appt subtype ID 2")
+ D CHKEQ^XTMUNIT(RETURN(2,"SUBCAT"),"2^Category 2","Invalid sub-categ 1")
+ D CHKEQ^XTMUNIT(RETURN(2,"STATUS"),"1^YES","Invalid status 2")
+ ;Active only
+ S %=$$LSTASTYP^SDMAPI5(.RETURN,TYPE,1) ; List appointment subtypes
+ D CHKEQ^XTMUNIT(RETURN(0),1,"Invalid no of entries - active")
+ D CHKEQ^XTMUNIT(RETURN(1,"ID"),2,"Invalid category ID - active")
+ D CHKEQ^XTMUNIT(RETURN(1,"SUBCAT"),"2^Category 2","Invalid sub-categ - active")
+ D CHKEQ^XTMUNIT(RETURN(1,"STATUS"),"1^YES","Invalid status - active")
+ ;Inactive appointment type
+ S %=$$LSTASTYP^SDMAPI5(.RETURN,10,1) ; List appointment subtypes
+ D CHKEQ^XTMUNIT(RETURN(0),"TYPINAC^Appointment type 'COMPUTER GENERATED' is inactive.^1","TYPINAC")
  Q
 MAKENA ; Request type
  N RE,%

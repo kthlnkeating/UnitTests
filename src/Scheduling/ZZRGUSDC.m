@@ -1,4 +1,4 @@
-ZZRGUSDC ;Unit Tests - Clinic API; 4/16/13
+ZZRGUSDC ;Unit Tests - Clinic API; 7/3/13
  ;;1.0;UNIT TEST;;05/28/2012;
 LOGON ;
  S DUZ=$$CHECKAV^XUSRB("fakedoc1;1Doc!@#$")
@@ -69,16 +69,9 @@ SETENR(DFN,SC) ; Set patient enrolls
  S ^DPT(+DFN,"DE",1,1,1,0)=DT_"^O^^^"
  Q
  ;
-SUBTYP ;
- S ^DG(35.2,0)="SHARING AGREEMENT SUB-CATEGORY^35.2^2^2"
- S ^DG(35.2,1,0)="Sharing 1"
- S ^DG(35.2,2,0)="Sharing 2"
- S ^DG(35.2,"B","Sharing 1",1)=""
- S ^DG(35.2,"B","Sharing 2",2)=""
- S ^DG(35.1,0)="SHARING AGREEMENT CATEGORY^35.1V^2^2"
- S ^DG(35.1,1,0)="9;SD(409.1,^1^1"
- S ^DG(35.1,2,0)="9;SD(409.1,^2^1"
- S ^DG(35.1,"AT",9,1,1)=1
- S ^DG(35.1,"AT",9,2,2)=1
- S ^DG(35.1,"B","9;SD(409.1,",1)=""
- S ^DG(35.1,"B","9;SD(409.1,",2)=""
+SUBTYP(TYPE) ;
+ S %=$$ADDSASC^DGSAAPI(.R,"Category 1")
+ S %=$$ADDASC^SDMAPI5(.R,TYPE,+R)
+ S %=$$ADDSASC^DGSAAPI(.R,"Category 2")
+ S %=$$ADDASC^SDMAPI5(.R,TYPE,+R,1)
+ Q
