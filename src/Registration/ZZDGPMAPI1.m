@@ -1,4 +1,4 @@
-ZZDGPMAPI1 ;Unit Tests - Admission API; 6/19/13
+ZZDGPMAPI1 ;Unit Tests - Admission API;07/03/13  12:05
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI1")
@@ -49,6 +49,8 @@ ADMIT ;
  D CHKASRC^ZZDGPMAPI1(RTN,.PAR)
  ;Invalid eligibility
  D CHKELIG^ZZDGPMAPI1(RTN,.PAR)
+ ;Invalid admitting category
+ D CHKACAT^ZZDGPMAPI1(RTN,.PAR,,PAR("ADMREG"))
  ;Admit
  S PAR("DIAG",1)="Diag 1",PAR("DIAG",3)="Diag 3"
  S %=$$ADMIT^DGPMAPI1(.RE,.PAR)
@@ -89,6 +91,25 @@ CHKELIG(RTN,PAR,UPD) ;
  D CHKEQ^XTMUNIT($P(RE(0),U),"PATENFND","Expected error: PATENFND")
  S PAR("ELIGIB")=9
  Q
+CHKACAT(RTN,PAR,UPD,AREG) ;
+ ;invalid param
+ N SASC
+ S PAR("ADMCAT")="AA" X RTN
+ D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM")
+ D CHKEQ^XTMUNIT($G(RE(0)),"INVPARM^Invalid parameter value - PARAM(""ADMCAT"")","Expected error: INVPARM")
+ ;not found
+ S PAR("ADMCAT")=2 X RTN
+ D CHKEQ^XTMUNIT(RE,0,"Expected error: SACNFND")
+ D CHKEQ^XTMUNIT($P(RE(0),U),"SACNFND","Expected error: SACNFND")
+ ;inactive category
+ S CATN="Category "_(1+$G(UPD))
+ S %=$$ADDSASC^DGSAAPI(.SASC,CATN)
+ S %=$$ADDACAT^DGSAAPI(.SAC,AREG,SASC)
+ S PAR("ADMREG")=AREG,PAR("ADMCAT")=SASC X RTN
+ D CHKEQ^XTMUNIT(RE,0,"Expected error: ACATINAC")
+ D CHKEQ^XTMUNIT($G(RE(0)),"ACATINAC^Admitting category '"_CATN_"' is inactive.","Expected error: ACATINAC")
+ S %=$$UPDCAT^DGSAAPI(.SAC,SAC,1)
+ Q
 UPDADM ;
  K PAR,RE,DGQUIET
  ;no update
@@ -125,16 +146,19 @@ UPDADM ;
  D CHKASRC^ZZDGPMAPI1(RTN,.PAR,1) M PART=PAR K PAR
  ;Invalid eligibility
  D CHKELIG^ZZDGPMAPI1(RTN,.PAR,1) M PART=PAR K PAR
+ ;Invalid admitting category
+ D CHKACAT^ZZDGPMAPI1(RTN,.PAR,1,PART("ADMREG")) M PART=PAR K PAR
  ;Ok
  S PART("TYPE")="2^",PART("FDEXC")="0^",PART("PRYMPHY")="37^"
  S %=$$UPDADM^DGPMAPI1(.RE,.PART,AFN)
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
- D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U),+PART("DATE"),"Unexpected error: "_$G(RE(0)))
- D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,4),+PART("TYPE"),"Unexpected error: "_$G(RE(0)))
- D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,6),+PART("WARD"),"Unexpected error: "_$G(RE(0)))
- D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,7),+PART("ROOMBED"),"Unexpected error: "_$G(RE(0)))
- D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,10),PART("SHDIAG"),"Unexpected error: "_$G(RE(0)))
- D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,12),+PART("ADMREG"),"Unexpected error: "_$G(RE(0)))
+ D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U),+PART("DATE"),"Date update failed")
+ D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,4),+PART("TYPE"),"Type update failed")
+ D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,6),+PART("WARD"),"Ward update failed")
+ D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,7),+PART("ROOMBED"),"Bed update failed")
+ D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,10),PART("SHDIAG"),"Short diag update failed")
+ D CHKEQ^XTMUNIT($P(^DGPM(+AFN,0),U,12),+PART("ADMREG"),"Admitting regulation update failed")
+ D CHKEQ^XTMUNIT($P(^DGPM(+AFN,"PTF"),U,4),+PART("ADMCAT"),"Admitting category update failed")
  S %=$$GETADM^DGPMAPI8(.ADM,AFN)
  D CHKEQ^XTMUNIT(+ADM("PRYMPHY"),+PART("PRYMPHY"),"Primary physician")
  D CHKEQ^XTMUNIT(+ADM("ATNDPHY"),+PART("ATNDPHY"),"Primary physician")
