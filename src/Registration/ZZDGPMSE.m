@@ -1,4 +1,4 @@
-ZZDGPMSE ;Unit Tests - Clinic API; 6/19/13
+ZZDGPMSE ;Unit Tests - Clinic API; 7/3/13
  ;;1.0;UNIT TEST;;05/28/2012;
 ADDCLN(NAME) ; Add new clinic
  N IEN
@@ -15,6 +15,12 @@ ADDCLN(NAME) ; Add new clinic
  S ^SC(IEN,"SDP")="5^2^3^"
  Q IEN_U_NAME
  ;
+ADDACAT() ;
+ S %=$$ADDSASC^DGSAAPI(.R,"Category 1")
+ S %=$$ADDASC^SDMAPI5(.R,1,+R)
+ S %=$$ADDSASC^DGSAAPI(.R,"Category 2")
+ S %=$$ADDASC^SDMAPI5(.R,1,+R,1)
+ Q
 ADDPATT(SC) ;
  S DD=9999999
  F I=0:1:6 S ^SC(SC,"T"_I,DD,0)=DD,^SC(SC,"T"_I,DD,1)="[1 1 1 1|1 1 1 1|1 1 1 1|1 1 1 1|1 1 1 1|1 1 1 1|1 1 1 1|1 1 1 1]"

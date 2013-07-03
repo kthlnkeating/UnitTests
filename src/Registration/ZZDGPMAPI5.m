@@ -1,4 +1,4 @@
-ZZDGPMAPI5 ;Unit Tests - Check-in API; 6/19/13
+ZZDGPMAPI5 ;Unit Tests - Check-in API; 7/3/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI5")
@@ -61,8 +61,8 @@ LDGOUT ;
  ; Ok
  S PA("TYPE")=45,PA("LDGDISP")="a^A",%=$$LDGOUT^DGPMAPI5(.R,.PA)
  S CI0=+PA("DATE")_"^5^"_+PA("PATIENT")_"^45^^"
- S CI0=CI0_"^^^^^^^^"_+AFN_"^^^^7^^^^0^^"
- D CHKEQ^XTMUNIT(CI0,^DGPM(+R,0),"Incorrect movement")
+ S CI0=CI0_"^^^^^^^^"_+AFN_"^^^^7^^^^0"
+ D CHKEQ^XTMUNIT(CI0,$P(^DGPM(+R,0),U,1,22),"Incorrect movement")
  S COFN=R
  Q
 UPDLDGOU ;Update check-out
@@ -99,8 +99,8 @@ UPDLDGOU ;Update check-out
  ; Ok to update
  S %=$$UPDLDGOU^DGPMAPI5(.R,.PA,COFN)
  S CI0=+PA("DATE")_"^5^"_+PA("PATIENT")_"^"_+PA("TYPE")_"^^"
- S CI0=CI0_"^^^^^^^^"_+AFN_"^^^^7^^^^0^^"
- D CHKEQ^XTMUNIT(CI0,^DGPM(+COFN,0),"Incorrect movement")
+ S CI0=CI0_"^^^^^^^^"_+AFN_"^^^^7^^^^0"
+ D CHKEQ^XTMUNIT(CI0,$P(^DGPM(+COFN,0),U,1,22),"Incorrect movement")
  Q
 DELLDGOU ;Delete check-out ;
  N R,DGQUIET
