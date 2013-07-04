@@ -1,4 +1,4 @@
-ZZDGSAAPI ;RGI/VSL Unit Tests - Sharing Agreement API; 5/31/13
+ZZDGSAAPI ;RGI/VSL Unit Tests - Sharing Agreement API; 7/4/13
  ;;1.0;UNIT TEST;;05/28/2012;
  Q:$T(^SDMAPI1)=""
  TSTART
@@ -28,7 +28,7 @@ LSTACAT ;
  S %=$$LSTACAT^DGSAAPI(.RETURN,99999)
  D CHKEQ^XTMUNIT(RETURN(0),"AREGNFND^Admitting regulation not found.","Expected error: AREGNFND")
  S %=$$LSTACAT^DGSAAPI(.RETURN,AREG)
- D CHKEQ^XTMUNIT(RETURN(0),"2","Invalid 0 node")
+ D CHKEQ^XTMUNIT(+RETURN(0),2,"Invalid 0 node")
  D CHKEQ^XTMUNIT(RETURN(1,"ID"),1,"Invalid appt subtype ID 1")
  D CHKEQ^XTMUNIT(RETURN(1,"SUBCAT"),"1^Category 1 updated","Invalid sub-categ 1")
  D CHKEQ^XTMUNIT(RETURN(1,"STATUS"),"1^YES","Invalid status 1")
@@ -37,7 +37,7 @@ LSTACAT ;
  D CHKEQ^XTMUNIT(RETURN(2,"STATUS"),"^","Invalid status 2")
  ;Active only
  S %=$$LSTACAT^DGSAAPI(.RETURN,AREG,1)
- D CHKEQ^XTMUNIT(RETURN(0),1,"Invalid no of entries - active")
+ D CHKEQ^XTMUNIT(+RETURN(0),1,"Invalid no of entries - active")
  D CHKEQ^XTMUNIT(RETURN(1,"ID"),1,"Invalid category ID - active")
  D CHKEQ^XTMUNIT(RETURN(1,"SUBCAT"),"1^Category 1 updated","Invalid sub-categ - active")
  D CHKEQ^XTMUNIT(RETURN(1,"STATUS"),"1^YES","Invalid status - active")
