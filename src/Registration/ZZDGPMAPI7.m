@@ -1,4 +1,4 @@
-ZZDGPMAPI7 ;Unit Tests - Clinic API; 6/19/13
+ZZDGPMAPI7 ;Unit Tests - Clinic API; 7/10/13
  ;;1.0;UNIT TEST;;05/28/2012;
  TSTART
  I $T(EN^XTMUNIT)'="" D EN^XTMUNIT("ZZDGPMAPI7")
@@ -188,17 +188,19 @@ LSTPELIG ;
  N RE
  S %=$$LSTPELIG^DGPMAPI9(.RE,"AA")
  D CHKEQ^XTMUNIT(RE,0,"Expected error: INVPARM")
- D CHKEQ^XTMUNIT($P(RE(0),U),"INVPARM","Expected error: INVPARM")
+ D CHKEQ^XTMUNIT($G(RE(0)),"INVPARM^Invalid parameter value - DFN","Expected error: INVPARM")
  S %=$$LSTPELIG^DGPMAPI9(.RE,DFN+99)
  D CHKEQ^XTMUNIT(RE,0,"Expected error: PATNFND")
  D CHKEQ^XTMUNIT($P(RE(0),U),"PATNFND","Expected error: PATNFND")
  S %=$$LSTPELIG^DGPMAPI9(.RE,DFN)
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
  D CHKEQ^XTMUNIT(+$G(RE(1)),0,"Incorrect eligibility")
- S ^DPT(+DFN,.36)="9",^DPT(+DFN,"E",15,0)="15"
+ S ^DPT(+DFN,.36)="9"
+ S ^DPT(+DFN,"E",15,0)="15",^DPT(+DFN,"E",11,0)="11"
  S %=$$LSTPELIG^DGPMAPI9(.RE,DFN)
- D CHKEQ^XTMUNIT(RE(1),"9^SHARING AGREEMENT","Incorrect primary eligibility")
- D CHKEQ^XTMUNIT(RE(2),"15^HOUSEBOUND","Incorrect primary eligibility")
+ D CHKEQ^XTMUNIT(RE("PELIG"),"9^SHARING AGREEMENT","Incorrect primary eligibility")
+ D CHKEQ^XTMUNIT(RE(1),"11^DOM. PATIENT","Incorrect eligibility 1")
+ D CHKEQ^XTMUNIT(RE(2),"15^HOUSEBOUND","Incorrect eligibility 2")
  Q
 XTENT ;
  ;;LSTPROV;List providers
