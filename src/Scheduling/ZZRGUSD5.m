@@ -1,4 +1,4 @@
-ZZRGUSD5 ;RGI/CBR Unit Tests - Vocabulary API; 7/3/13
+ZZRGUSD5 ;RGI/CBR Unit Tests - Vocabulary API; 7/10/13
  ;;1.0;UNIT TEST;;05/28/2012;
  Q:$T(^SDMAPI1)=""
  TSTART
@@ -251,6 +251,9 @@ ADDASC ; Add sharing agreement category
  S %=$$ADDASC^SDMAPI5(.RE,TYPE_U,SASC_U,1_U)
  D CHKEQ^XTMUNIT(RE>0,1,"Unexpected error: "_$G(RE(0)))
  D CHKEQ^XTMUNIT(+TYPE_";SD(409.1,^"_+SASC_"^1",$G(^DG(35.1,+RE,0)),"Incorrect name")
+ ;Category already exists
+ S %=$$ADDASC^SDMAPI5(.RE,TYPE_U,SASC_U,1_U)
+ D CHKEQ^XTMUNIT(RE_U_$G(RE(0)),"0^SACEXST^Sharing Agreement Category 'Category 1' already exists.","Expected error: SACEXST")
  Q
 XTENT ;
  ;;LSTAPPST;List appointment statuses

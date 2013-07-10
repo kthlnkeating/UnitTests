@@ -1,4 +1,4 @@
-ZZDGSAAPI ;RGI/VSL Unit Tests - Sharing Agreement API; 7/4/13
+ZZDGSAAPI ;RGI/VSL Unit Tests - Sharing Agreement API; 7/10/13
  ;;1.0;UNIT TEST;;05/28/2012;
  Q:$T(^SDMAPI1)=""
  TSTART
@@ -23,23 +23,26 @@ LSTACAT ;
  S %=$$ADDACAT^DGSAAPI(.R,1,+R)
  ;Invalid param type
  S %=$$LSTACAT^DGSAAPI(.RETURN)
- D CHKEQ^XTMUNIT(RETURN(0),"INVPARM^Invalid parameter value - AREG","Expected error: INVPARAM")
+ D CHKEQ^XTMUNIT(RETURN(0),"INVPARM^Invalid parameter value - AREG","Expected error: INVPARM")
+ ;Invalid param type
+ S %=$$LSTACAT^DGSAAPI(.RETURN,"AAA")
+ D CHKEQ^XTMUNIT(RETURN(0),"INVPARM^Invalid parameter value - AREG","Expected error: INVPARM")
  ;Undefined admitting regulation
  S %=$$LSTACAT^DGSAAPI(.RETURN,99999)
  D CHKEQ^XTMUNIT(RETURN(0),"AREGNFND^Admitting regulation not found.","Expected error: AREGNFND")
  S %=$$LSTACAT^DGSAAPI(.RETURN,AREG)
- D CHKEQ^XTMUNIT(+RETURN(0),2,"Invalid 0 node")
+ D CHKEQ^XTMUNIT(RETURN(0),2,"Invalid 0 node")
  D CHKEQ^XTMUNIT(RETURN(1,"ID"),1,"Invalid appt subtype ID 1")
- D CHKEQ^XTMUNIT(RETURN(1,"SUBCAT"),"1^Category 1 updated","Invalid sub-categ 1")
+ D CHKEQ^XTMUNIT(RETURN(1,"SUBCAT"),"1^Category 1","Invalid sub-categ 1")
  D CHKEQ^XTMUNIT(RETURN(1,"STATUS"),"1^YES","Invalid status 1")
  D CHKEQ^XTMUNIT(RETURN(2,"ID"),2,"Invalid appt subtype ID 2")
  D CHKEQ^XTMUNIT(RETURN(2,"SUBCAT"),"2^Category 2","Invalid sub-categ 1")
  D CHKEQ^XTMUNIT(RETURN(2,"STATUS"),"^","Invalid status 2")
  ;Active only
  S %=$$LSTACAT^DGSAAPI(.RETURN,AREG,1)
- D CHKEQ^XTMUNIT(+RETURN(0),1,"Invalid no of entries - active")
+ D CHKEQ^XTMUNIT(RETURN(0),1,"Invalid no of entries - active")
  D CHKEQ^XTMUNIT(RETURN(1,"ID"),1,"Invalid category ID - active")
- D CHKEQ^XTMUNIT(RETURN(1,"SUBCAT"),"1^Category 1 updated","Invalid sub-categ - active")
+ D CHKEQ^XTMUNIT(RETURN(1,"SUBCAT"),"1^Category 1","Invalid sub-categ - active")
  D CHKEQ^XTMUNIT(RETURN(1,"STATUS"),"1^YES","Invalid status - active")
  ;Inactive admitting regulation
  S %=$$LSTACAT^DGSAAPI(.RETURN,2,1)
@@ -63,7 +66,7 @@ ADDSASC ; Add sharing agreement sub-category
  ;Already exists
  S NAME="Category 1"
  S %=$$ADDSASC^DGSAAPI(.RE,NAME)
- D CHKEQ^XTMUNIT(RE_U_$P($G(RE(0)),U),"0^SASCAEX","Expected error: SASCINV")
+ D CHKEQ^XTMUNIT(RE_U_$G(RE(0)),"0^SASCAEX^Sharing Agreement Sub-Category 'Category 1' already exists.","Expected error: SASCINV")
  Q
 UPDSASC ; Update sharing agreement sub-category
  N RE,NAME
@@ -81,6 +84,14 @@ UPDSASC ; Update sharing agreement sub-category
  S NAME="A" F IN=1:1:30 S NAME=NAME_"A"
  S %=$$UPDSASC^DGSAAPI(.RE,SASC_U,NAME)
  D CHKEQ^XTMUNIT(RE_U_$P($G(RE(0)),U),"0^SASCINV","Expected error: SASCINV")
+ ;Already exists
+ S %=$$ADDSASC^DGSAAPI(.RE,"Category 2")
+ S %=$$UPDSASC^DGSAAPI(.RE,SASC_U,"Category 2")
+ D CHKEQ^XTMUNIT(RE_U_$G(RE(0)),"0^SASCAEX^Sharing Agreement Sub-Category 'Category 2' already exists.","Expected error: SASCAEX")
+ ;Ok same name
+ S NAME="Category 1",%=$$UPDSASC^DGSAAPI(.RE,SASC_U,NAME)
+ D CHKEQ^XTMUNIT(RE>0,1,"Unexpected error: "_$G(RE(0)))
+ D CHKEQ^XTMUNIT(NAME,$G(^DG(35.2,+SASC,0)),"Incorrect name")
  ;Ok
  S NAME="Category 1 updated"
  S %=$$UPDSASC^DGSAAPI(.RE,SASC_U,NAME)
@@ -90,7 +101,10 @@ UPDSASC ; Update sharing agreement sub-category
 ADDACAT ; Add sharing agreement category
  N RE,AREG,SUBCAT,STAT
  ;Invalid param TYPE
- S %=$$ADDACAT^DGSAAPI(.RE),AREG=9999
+ S %=$$ADDACAT^DGSAAPI(.RE),AREG="AAA"
+ D CHKEQ^XTMUNIT(RE_U_$P($G(RE(0)),U),"0^INVPARM","Expected error: INVPARM")
+ ;Invalid param TYPE
+ S %=$$ADDACAT^DGSAAPI(.RE,AREG_U),AREG=9999
  D CHKEQ^XTMUNIT(RE_U_$P($G(RE(0)),U),"0^INVPARM","Expected error: INVPARM")
  ;Admitting regulation not found
  S %=$$ADDACAT^DGSAAPI(.RE,AREG_U),AREG=1
@@ -108,6 +122,9 @@ ADDACAT ; Add sharing agreement category
  S %=$$ADDACAT^DGSAAPI(.RE,AREG_U,SASC_U,1_U)
  D CHKEQ^XTMUNIT(RE>0,1,"Unexpected error: "_$G(RE(0)))
  D CHKEQ^XTMUNIT(+AREG_";DIC(43.4,^"_+SASC_"^1",$G(^DG(35.1,+RE,0)),"Incorrect name")
+ ;Category already exists
+ S %=$$ADDACAT^DGSAAPI(.RE,AREG_U,SASC_U,1_U)
+ D CHKEQ^XTMUNIT(RE_U_$G(RE(0)),"0^SACEXST^Sharing Agreement Category 'Category 1' already exists.","Expected error: SACEXST")
  Q
 UPDCAT ; Update sharing agreement category
  N RE,SACAT,STAT
@@ -117,6 +134,9 @@ UPDCAT ; Update sharing agreement category
  ;Admitting regulation not found
  S %=$$UPDCAT^DGSAAPI(.RE,SACAT_U),SACAT=1
  D CHKEQ^XTMUNIT($G(RE(0)),"SACNFND^Sharing Agreement Category not found.","Expected error: SACNFND")
+ ;Invalid param STATUS
+ S %=$$UPDCAT^DGSAAPI(.RE,SACAT_U)
+ D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
  ;Invalid param STATUS
  S %=$$UPDCAT^DGSAAPI(.RE,SACAT_U,2)
  D CHKEQ^XTMUNIT(RE_U_$P($G(RE(0)),U),"0^INVPARM","Expected error: INVPARM")
@@ -130,7 +150,7 @@ UPDCAT ; Update sharing agreement category
  Q
 XTENT ;
  ;;ADDSASC;Add Sub-category 
- ;;UPDSASC;Update Sub-category
  ;;ADDACAT;Add Admitting Category
  ;;LSTACAT;List Sub-categories
  ;;UPDCAT;Update Admitting Category
+ ;;UPDSASC;Update Sub-category
