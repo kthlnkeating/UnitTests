@@ -52,7 +52,7 @@ SETUP(PNM,CNM) ;
  S:$D(CNM) CNAME=CNM
  S:'$D(PNM) PNAME="TEST,PATIENT"
  S:'$D(CNM) CNAME="Test Clinic"
- S SC2=$$ADDCLN("Second clinic")
+ S SC1=$$ADDCLN("Second clinic")
  S SC=$$ADDCLN(CNAME)
  S SC2=$$ADDCLN(CNAME_2)
  S DFN=$$ADDPAT(PNAME)
