@@ -16,10 +16,10 @@ SHUTDOWN ;
  Q
  ;
 LSTPROV ;
- S RTN="S %=$$LSTPROV^DGPMAPI7(.RE,,,,DGDT)"
+ S RTN="S %=$$LSTPROV^DGPMAPI9(.RE,,,,DGDT)"
  D VALDT^ZZDGPMUTL(RTN,"DGDT")
  ; 
- S %=$$LSTPROV^DGPMAPI7(.RE,$P(^VA(200,+DUZ,0),U),,,$$NOW^XLFDT())
+ S %=$$LSTPROV^DGPMAPI9(.RE,$P(^VA(200,+DUZ,0),U),,,$$NOW^XLFDT())
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
  D CHKEQ^XTMUNIT(RE(1,"ID"),+DUZ,"Incorrect IFN")
  D CHKEQ^XTMUNIT(RE(1,"NAME"),$P(^VA(200,+DUZ,0),U),"Incorrect name")
@@ -28,7 +28,7 @@ LSTPROV ;
  Q
 LSTADREG ;
  S IFN=$P(^DIC(43.4,0),U,3),NAME=$P(^DIC(43.4,IFN,0),U)
- S %=$$LSTADREG^DGPMAPI7(.RE,NAME,,)
+ S %=$$LSTADREG^DGPMAPI9(.RE,NAME,,)
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
  D CHKEQ^XTMUNIT(RE(1,"ID"),IFN,"Incorrect IFN")
  D CHKEQ^XTMUNIT(RE(1,"NAME"),$P(^DIC(43.4,IFN,0),U),"Incorrect name")
@@ -36,12 +36,12 @@ LSTADREG ;
  Q
 LSTFTS ;
  N RE,DGDT
- S %=$$LSTFTS^DGPMAPI7(.RE,,,,)
+ S %=$$LSTFTS^DGPMAPI9(.RE,,,,)
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
- S RTN="S %=$$LSTFTS^DGPMAPI7(.RE,,,,DGDT)"
+ S RTN="S %=$$LSTFTS^DGPMAPI9(.RE,,,,DGDT)"
  D VALDT^ZZDGPMUTL(RTN,"DGDT")
  S IFN=$P(^DIC(45.7,0),U,3),NAME=$P(^DIC(45.7,IFN,0),U)
- S %=$$LSTFTS^DGPMAPI7(.RE,NAME,,,$$NOW^XLFDT()) ; Return facility treating specialties
+ S %=$$LSTFTS^DGPMAPI9(.RE,NAME,,,$$NOW^XLFDT()) ; Return facility treating specialties
  D CHKEQ^XTMUNIT(RE,1,"Unexpected error: "_$G(RE(0)))
  D CHKEQ^XTMUNIT(RE(1,"ID"),IFN,"Incorrect IFN")
  D CHKEQ^XTMUNIT(RE(1,"NAME"),$P(^DIC(45.7,IFN,0),U),"Incorrect name")

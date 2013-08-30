@@ -30,6 +30,7 @@ ADDPAT(NAME,I) ; Add new patient
  S IEN=$P(^DPT(0),U,3)+I
  S ^DPT("B",NAME_I,IEN)=""
  S ^DPT(IEN,0)=NAME_I_"^M^2800621^^^^^^221133445^^^^^^1^3120628^^^^1"
+ S ^DPT(IEN,.32)="^^121^^^" ;_$$NOW^XLFDT()
  Q IEN_U_NAME_I
  ;
 SETUP(PNM,CNM) ;
